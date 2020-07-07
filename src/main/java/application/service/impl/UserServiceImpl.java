@@ -4,9 +4,13 @@ import application.model.User;
 import application.repository.UserRepository;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -15,19 +19,28 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
+    public Page<User> findAllActiveWithPaging(Pageable pageable) {
+        return userRepository.findAllActive(pageable);
+    }
+
+    @Override
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public List<User> findAllByOrderById() {
-        return userRepository.findAllByOrderById();
+    public List<User> findAllActive() {
+        return userRepository.findAllActive();
+    }
+
+    @Override
+    public Optional<User> findById(String id) {
+        return userRepository.findById(id);
     }
 
     @Override
     public void insertUser(User user) {
         userRepository.save(user);
-
     }
 
     @Override
