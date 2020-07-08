@@ -11,13 +11,11 @@ public interface UserService {
 
     Page<User> findAllActiveWithPaging(Pageable pageable);
 
-    List<User> findAll();
-
     List<User> findAllActive();
 
     Optional<User> findById(String id);
 
-    int countByEmail(String email);
+    long countByEmail(String email);
 
     void insert(User user);
 
