@@ -1,7 +1,7 @@
 package application.controller;
 
 import application.data.PageReq;
-import application.model.User;
+import application.model.entity.User;
 import application.model.dto.UserDTO;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,21 +21,17 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value ="/api/users")
-public class UserController {
+@RequestMapping(value = "/api/users")
+public class UserController implements BaseController {
 
     @Autowired
     private UserService userService;
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> getAllUsersActiveWithPaging(@RequestBody PageReq pageReq) {
+    public ResponseEntity<Map<String, Object>> findAllActiveWithPaging(@RequestBody PageReq pageReq) {
 
         try {
-            int page = pageReq.getCurrentPage();
-            int size = pageReq.getNumberRecord();
-
-            Pageable paging = PageRequest.of(page,size);
-
+            Pageable paging = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
             Page<User> userPage = userService.findAllActiveWithPaging(paging);
             List<User> userList = userPage.getContent();
 
@@ -48,20 +44,22 @@ public class UserController {
             }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("users",userList);
+            response.put("users", userList);
             response.put("currentPage", userPage.getNumber());
             response.put("currentNumberOfRecords", userPage.getNumberOfElements());
             response.put("totalPages", userPage.getTotalPages());
             response.put("totalNumberOfRecords", userPage.getTotalElements());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e ) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("Error","Server Error");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> getAllUsersActive() {
+    public ResponseEntity<Map<String, Object>> findAllActive() {
 
         try {
             List<User> userList = userService.findAllActive();
@@ -75,58 +73,59 @@ public class UserController {
             }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("users",userList);
+            response.put("users", userList);
             response.put("totalNumberOfRecords", userList.size());
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e ) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("Error","Server Error");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping(value = "/")
-    public ResponseEntity<?> insertUser(@RequestBody UserDTO dto) {
-       try {
-           User user = new User();
-           user.setActive(true);
-           user.setFirstName(dto.getFirstName());
-           user.setSurName(dto.getSurName());
-           user.setEmail(dto.getEmail());
-           user.setBirthDay(LocalDate.of(dto.getBirthYear(),1,1));
-           user.setBirthPlace(dto.getBirthPlace());
-           user.setDepartment(dto.getDepartment());
-           user.setRole(dto.getRole());
+    public ResponseEntity<Object> insert(@RequestBody UserDTO dto) {
+        try {
+            User user = new User();
+            user.setActive(true);
+            user.setFirstName(dto.getFirstName());
+            user.setSurName(dto.getSurName());
+            user.setEmail(dto.getEmail());
+            user.setBirthDay(LocalDate.of(dto.getBirthYear(), 1, 1));
+            user.setBirthPlace(dto.getBirthPlace());
+            user.setDepartment(dto.getDepartment());
+            user.setRole(dto.getRole());
 
-           userService.insertUser(user);
+            userService.insert(user);
 
-           return new ResponseEntity<>("New user created with ID: "+user.getId(),HttpStatus.OK);
+            return new ResponseEntity<>("New user created with ID: " + user.getId(), HttpStatus.OK);
 
-       } catch (Exception e) {
-           return new ResponseEntity<>("Error: BAD REQUEST", HttpStatus.BAD_REQUEST);
-       }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: BAD REQUEST", HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @GetMapping(value ="/{id}")
-    public ResponseEntity<?> findById(@PathVariable String id) {
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<Object> findById(@PathVariable String id) {
 
-        Optional<User> user = Optional.ofNullable(userService.findById(id).orElse(null));
+        Optional<User> user = userService.findById(id);
 
-        if (user.isEmpty()) {
-            return new ResponseEntity<>("User ID is not found.", HttpStatus.NO_CONTENT);}
-        else  {
+        if (user.isPresent()) {
             return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable String id) {
-        User user = userService.findById(id).orElse(null);
+    public ResponseEntity<Object> delete(@PathVariable String id) {
+        Optional<User> user = userService.findById(id);
 
-        if (user == null) {
-            return new ResponseEntity<>("User ID is not found.", HttpStatus.NO_CONTENT);
-        } else {
-            userService.deleteUser(id);
+        if (user.isPresent()) {
+            userService.delete(id);
             return new ResponseEntity<>("User deactivated successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
         }
     }
-
 }

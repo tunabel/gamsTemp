@@ -1,19 +1,17 @@
-package application.model;
+package application.model.entity;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
+
 import java.time.LocalDate;
 
 @Document(collection = "users")
 @Data
-public class User implements Serializable {
-    @Id
-    private String id;
-
+@EqualsAndHashCode(callSuper=true)
+public class User extends AbstractObject {
     private String firstName;
     private String surName;
     private String email;

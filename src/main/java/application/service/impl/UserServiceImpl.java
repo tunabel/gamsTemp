@@ -1,13 +1,12 @@
 package application.service.impl;
 
-import application.model.User;
+import application.model.entity.User;
 import application.repository.UserRepository;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -39,17 +38,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void insertUser(User user) {
+    public void insert(User user) {
         userRepository.save(user);
     }
 
     @Override
-    public void updateUser(User user) {
+    public void update(User user) {
         userRepository.save(user);
     }
 
     @Override
-    public void deleteUser(String id) {
+    public void delete(String id) {
         userRepository.deleteById(id);
     }
 }

@@ -1,6 +1,6 @@
 package application.service;
 
-import application.model.User;
+import application.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,7 +17,9 @@ public interface UserService {
 
     Optional<User> findById(String id);
 
-    void insertUser(User user);
-    void updateUser(User user);
-    void deleteUser(String id);
+    void insert(User user);
+
+    void update(User user);
+
+    void delete(String id);
 }
