@@ -15,4 +15,6 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     @Query("{active: true}")
     List<User> findAllActive();
+
+    int countByEmail(String email);
 }

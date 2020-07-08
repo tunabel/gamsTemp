@@ -17,6 +17,8 @@ public interface UserService {
 
     Optional<User> findById(String id);
 
+    int countByEmail(String email);
+
     void insert(User user);
 
     void update(User user);

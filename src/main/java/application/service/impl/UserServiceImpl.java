@@ -38,6 +38,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public int countByEmail(String email) {
+        return userRepository.countByEmail(email);
+    }
+
+    @Override
     public void insert(User user) {
         userRepository.save(user);
     }
