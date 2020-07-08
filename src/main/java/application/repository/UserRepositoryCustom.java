@@ -11,4 +11,6 @@ public interface UserRepositoryCustom {
     List<User> findAllActive();
 
     Page<User> findAllActive(Pageable pageable);
+
+    List<User> findByQuery();
 }

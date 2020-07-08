@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
@@ -28,7 +29,13 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         Criteria criteria = Criteria.where("active").is(true);
         Query query = new Query(criteria).with(pageable);
         List<User> userList = mongoTemplate.find(query, User.class);
-        long count = userList.size();
+        long count = findAllActive().size();
         return new PageImpl<User>(userList, pageable, count);
+    }
+
+    @Override
+    public List<User> findByQuery() {
+
+        return new ArrayList<User>();
     }
 }
