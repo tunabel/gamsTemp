@@ -13,14 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@CrossOrigin
 @RestController
 @RequestMapping(value = "/api/users")
 public class UserController implements BaseController {
@@ -99,7 +97,7 @@ public class UserController implements BaseController {
 
             userService.insert(user);
 
-            return new ResponseEntity<>("New user created with ID: " + user.getId(), HttpStatus.OK);
+            return new ResponseEntity<>("New user created: " + user, HttpStatus.OK);
 
         } catch (Exception e) {
             return new ResponseEntity<>("Error: BAD REQUEST", HttpStatus.BAD_REQUEST);
