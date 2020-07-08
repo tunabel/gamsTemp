@@ -13,15 +13,7 @@ public class PageReq {
         return currentPage;
     }
 
-    public void setCurrentPage(int currentPage) {
-        this.currentPage = currentPage;
-    }
-
     public int getNumberRecord() {
         return numberRecord;
-    }
-
-    public void setNumberRecord(int numberRecord) {
-        this.numberRecord = numberRecord;
     }
 }

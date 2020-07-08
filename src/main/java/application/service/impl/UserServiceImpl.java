@@ -23,11 +23,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
-
-    @Override
     public List<User> findAllActive() {
         return userRepository.findAllActive();
     }
@@ -38,7 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int countByEmail(String email) {
+    public long countByEmail(String email) {
         return userRepository.countByEmail(email);
     }
 

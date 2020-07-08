@@ -31,8 +31,8 @@ public class UserController implements BaseController {
     public ResponseEntity<Map<String, Object>> findAllActiveWithPaging(@RequestBody PageReq pageReq) {
 
         try {
-            Pageable paging = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
-            Page<User> userPage = userService.findAllActiveWithPaging(paging);
+            Pageable pageable = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
+            Page<User> userPage = userService.findAllActiveWithPaging(pageable);
             List<User> userList = userPage.getContent();
 
             if (userList.isEmpty()) {
@@ -53,7 +53,7 @@ public class UserController implements BaseController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("Error","Server Error");
+            response.put("Error", "Server Error");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -78,7 +78,7 @@ public class UserController implements BaseController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("Error","Server Error");
+            response.put("Error", "Server Error");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
