@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public long countByEmail(String email) {
+    public int countByEmail(String email) {
         return userRepository.countByEmail(email);
     }
 
@@ -50,10 +50,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void update(User user) {
         userRepository.save(user);
-    }
-
-    @Override
-    public void delete(String id) {
-        userRepository.deleteById(id);
     }
 }

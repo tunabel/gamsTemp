@@ -17,11 +17,9 @@ public interface UserService {
 
     Page<User> findByQuery(String input, Pageable pageable);
 
-    long countByEmail(String email);
+    int countByEmail(String email);
 
     void insert(User user);
 
     void update(User user);
-
-    void delete(String id);
 }

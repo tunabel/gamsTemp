@@ -83,6 +83,15 @@ public class UserController implements BaseController {
 
     @PostMapping(value = "/")
     public ResponseEntity<Map<String, Object>> insert(@RequestBody UserDTO dto) {
+
+        int count = userService.countByEmail(dto.getEmail());
+
+        if (count > 0) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("Post Error", "Email existed");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
         try {
             User user = new User();
             user.setActive(true);
@@ -100,7 +109,7 @@ public class UserController implements BaseController {
             response.put("message", "New user created.");
             response.put("userId", user.getId());
             response.put("user", user);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
