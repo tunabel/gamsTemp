@@ -37,11 +37,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         Criteria criteria = new Criteria();
 
         criteria.orOperator(
-                Criteria.where("firstName").regex(input,"i"),
-                Criteria.where("surName").regex(input,"i"),
-                Criteria.where("email").regex(input,"i"),
-                Criteria.where("birthPlace").regex(input,"i"),
-                Criteria.where("department").regex(input,"i")
+                Criteria.where("firstName").regex(input, "i"),
+                Criteria.where("surName").regex(input, "i"),
+                Criteria.where("email").regex(input, "i"),
+                Criteria.where("birthPlace").regex(input, "i"),
+                Criteria.where("department").regex(input, "i")
         );
         Query query = new Query(criteria).with(pageable);
         List<User> userList = mongoTemplate.find(query, User.class);

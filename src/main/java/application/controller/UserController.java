@@ -31,9 +31,9 @@ public class UserController implements BaseController {
     public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
 
         try {
-            Pageable pageable = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
+            Pageable pageable = PageRequest.of(pageReq.getCurrentPage() - 1, pageReq.getNumberRecord());
             Page<User> userPage;
-            if ( search == null || search.isEmpty()) {
+            if (search == null || search.isEmpty()) {
                 userPage = userService.findAllActiveWithPaging(pageable);
             } else {
                 userPage = userService.findByQuery(search, pageable);
@@ -47,7 +47,7 @@ public class UserController implements BaseController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("users", userList);
-            response.put("currentPage", userPage.getNumber());
+            response.put("currentPage", userPage.getNumber() + 1);
             response.put("currentNumberOfRecords", userPage.getNumberOfElements());
             response.put("totalPages", userPage.getTotalPages());
             response.put("totalNumberOfRecords", userPage.getTotalElements());
@@ -122,11 +122,14 @@ public class UserController implements BaseController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Object> delete(@PathVariable String id) {
-        Optional<User> user = userService.findById(id);
+    public ResponseEntity<Object> deactivate(@PathVariable String id) {
+        Optional<User> optionalUser = userService.findById(id);
 
-        if (user.isPresent()) {
-            userService.delete(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setActive(false);
+            userService.update(user);
+
             return new ResponseEntity<>("User deactivated successfully", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
