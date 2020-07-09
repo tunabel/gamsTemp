@@ -28,7 +28,7 @@ public class UserController implements BaseController {
     private UserService userService;
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> findAllActiveWithPaging(@RequestBody PageReq pageReq) {
+    public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq) {
 
         try {
             Pageable pageable = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
@@ -84,7 +84,7 @@ public class UserController implements BaseController {
     }
 
     @PostMapping(value = "/")
-    public ResponseEntity<Object> insert(@RequestBody UserDTO dto) {
+    public ResponseEntity<Map<String, Object>> insert(@RequestBody UserDTO dto) {
         try {
             User user = new User();
             user.setActive(true);
@@ -98,10 +98,16 @@ public class UserController implements BaseController {
 
             userService.insert(user);
 
-            return new ResponseEntity<>("New user created: " + user, HttpStatus.OK);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "New user created.");
+            response.put("userId", user.getId());
+            response.put("user", user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {
-            return new ResponseEntity<>("Error: BAD REQUEST", HttpStatus.BAD_REQUEST);
+            Map<String, Object> response = new HashMap<>();
+            response.put("Error", "Bad Request");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
