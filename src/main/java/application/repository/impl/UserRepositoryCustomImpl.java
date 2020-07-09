@@ -35,7 +35,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
     @Override
     public List<User> findByQuery() {
-
+        
         return new ArrayList<User>();
     }
 }
