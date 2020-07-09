@@ -28,19 +28,21 @@ public class UserController implements BaseController {
     private UserService userService;
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq) {
+    public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
 
         try {
             Pageable pageable = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
-            Page<User> userPage = userService.findAllActiveWithPaging(pageable);
+            Page<User> userPage;
+            if ( search == null || search.isEmpty()) {
+                userPage = userService.findAllActiveWithPaging(pageable);
+            } else {
+                userPage = userService.findByQuery(search, pageable);
+            }
+
             List<User> userList = userPage.getContent();
 
             if (userList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            for (User user : userList) {
-                user.setBirthYear();
             }
 
             Map<String, Object> response = new HashMap<>();
@@ -53,7 +55,7 @@ public class UserController implements BaseController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("Error", "Server Error");
+            response.put("Get Error", "Server Error");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -68,17 +70,13 @@ public class UserController implements BaseController {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
 
-            for (User user : userList) {
-                user.setBirthYear();
-            }
-
             Map<String, Object> response = new HashMap<>();
             response.put("users", userList);
             response.put("totalNumberOfRecords", userList.size());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("Error", "Server Error");
+            response.put("Get Error", "Server Error");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -106,7 +104,7 @@ public class UserController implements BaseController {
 
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("Error", "Bad Request");
+            response.put("Post Error", "Bad Request");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
@@ -134,4 +132,6 @@ public class UserController implements BaseController {
             return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
         }
     }
+
+
 }
