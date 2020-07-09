@@ -33,6 +33,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<User> findByQuery(String input, Pageable pageable) {
+        return userRepository.findByQuery(input, pageable);
+    }
+
+    @Override
+    public List<User> findByQuery(String input) {
+        return userRepository.findByQuery(input);
+    }
+
+    @Override
     public long countByEmail(String email) {
         return userRepository.countByEmail(email);
     }

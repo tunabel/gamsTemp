@@ -28,7 +28,7 @@ public class UserController implements BaseController {
     private UserService userService;
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> findAllActiveWithPaging(@RequestBody PageReq pageReq) {
+    public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq) {
 
         try {
             Pageable pageable = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
@@ -83,8 +83,37 @@ public class UserController implements BaseController {
         }
     }
 
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Object>> searchWithPagination(@RequestBody PageReq pageReq, @RequestParam String search) {
+        try {
+            Pageable pageable = PageRequest.of(pageReq.getCurrentPage(), pageReq.getNumberRecord());
+            Page<User> userPage = userService.findByQuery(search, pageable);
+            List<User> userList = userPage.getContent();
+
+            if (userList.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            for (User user : userList) {
+                user.setBirthYear();
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("users", userList);
+            response.put("currentPage", userPage.getNumber());
+            response.put("currentNumberOfRecords", userPage.getNumberOfElements());
+            response.put("totalPages", userPage.getTotalPages());
+            response.put("totalNumberOfRecords", userPage.getTotalElements());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
     @PostMapping(value = "/")
-    public ResponseEntity<Object> insert(@RequestBody UserDTO dto) {
+    public ResponseEntity<Map<String, Object>> insert(@RequestBody UserDTO dto) {
         try {
             User user = new User();
             user.setActive(true);
@@ -98,10 +127,16 @@ public class UserController implements BaseController {
 
             userService.insert(user);
 
-            return new ResponseEntity<>("New user created: " + user, HttpStatus.OK);
+            Map<String, Object> response = new HashMap<>();
+            response.put("Message", "New user created.");
+            response.put("userId", user.getId());
+            response.put("user", user);
+            return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {
-            return new ResponseEntity<>("Error: BAD REQUEST", HttpStatus.BAD_REQUEST);
+            Map<String, Object> response = new HashMap<>();
+            response.put("Error", "Server Error");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
