@@ -42,6 +42,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findByQuery(String input) {
+        return userRepository.findByQuery(input);
+    }
+
+    @Override
     public long countByEmail(String email) {
         return userRepository.countByEmail(email);
     }

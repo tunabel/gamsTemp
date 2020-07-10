@@ -52,11 +52,16 @@ public class UserController implements BaseController {
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String, Object>> findAllActive() {
+    public ResponseEntity<Map<String, Object>> findAllActive(@RequestParam(required = false) String search) {
+
+        List<User> userList;
+        if (search == null || search.isEmpty()) {
+            userList = userService.findAllActive();
+        } else {
+            userList = userService.findByQuery(search);
+        }
 
         try {
-            List<User> userList = userService.findAllActive();
-
             if (userList.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
