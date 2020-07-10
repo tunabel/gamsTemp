@@ -1,6 +1,7 @@
 package application.controller;
 
-import application.data.PageReq;
+import application.controller.exception.UserListEmptyException;
+import application.model.common.PageReq;
 import application.model.entity.User;
 import application.model.dto.UserDTO;
 import application.service.UserService;
@@ -14,10 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -42,7 +40,7 @@ public class UserController implements BaseController {
             List<User> userList = userPage.getContent();
 
             if (userList.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                throw new UserListEmptyException("User List is empty");
             }
 
             Map<String, Object> response = new HashMap<>();
@@ -55,7 +53,7 @@ public class UserController implements BaseController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("Get Error", "Server Error");
+            response.put("Error", "Server Error");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -76,7 +74,7 @@ public class UserController implements BaseController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
-            response.put("Get Error", "Server Error");
+            response.put("Error", "Server Error");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -84,7 +82,7 @@ public class UserController implements BaseController {
     @PostMapping(value = "/")
     public ResponseEntity<Map<String, Object>> insert(@RequestBody UserDTO dto) {
 
-        int count = userService.countByEmail(dto.getEmail());
+        long count = userService.countByEmail(dto.getEmail());
 
         if (count > 0) {
             Map<String, Object> response = new HashMap<>();
@@ -145,5 +143,26 @@ public class UserController implements BaseController {
         }
     }
 
+    @GetMapping(value = "/count/")
+    public ResponseEntity<Map<String, Object>> count(@RequestParam String field, @RequestParam String value) {
 
+        Set<String> fieldList = Set.of("firstName","surName","email","birthPlace","birthYear","department","role");
+        if (!fieldList.contains(field)) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("Get Error", "Invalid Field Name");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            long count = userService.countByField(field, value);
+            Map<String, Object> response = new HashMap<>();
+            response.put("totalCount", count);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("Get Error", "Bad Request");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+    }
 }

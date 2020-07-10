@@ -14,4 +14,6 @@ public interface UserRepositoryCustom {
 
     Page<User> findByQuery(String input, Pageable pageable);
 
+    long countByField(String field, String value);
+
 }

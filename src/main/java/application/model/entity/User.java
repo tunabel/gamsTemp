@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -19,6 +18,7 @@ public class User extends AbstractObject {
     private String email;
     private LocalDate birthDay;
     @Getter
+    @Setter
     private int birthYear;
     private String birthPlace;
     private String department;
@@ -27,5 +27,9 @@ public class User extends AbstractObject {
 
     public int getBirthYear() {
         return this.birthDay.getYear();
+    }
+
+    public void setBirthYear() {
+        this.birthYear = this.birthDay.getYear();
     }
 }
