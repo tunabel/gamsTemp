@@ -17,15 +17,17 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    private static final String ACTIVE = "active";
+
     @Override
     public List<User> findAllActive() {
-        Criteria criteria = Criteria.where("active").is(true);
+        Criteria criteria = Criteria.where(ACTIVE).is(true);
         return mongoTemplate.find(Query.query(criteria), User.class);
     }
 
     @Override
     public Page<User> findAllActive(Pageable pageable) {
-        Criteria criteria = Criteria.where("active").is(true);
+        Criteria criteria = Criteria.where(ACTIVE).is(true);
         Query query = new Query(criteria).with(pageable);
         List<User> userList = mongoTemplate.find(query, User.class);
         return new PageImpl<User>(userList, pageable, findAllActive().size());
@@ -44,7 +46,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                         Criteria.where("birthPlace").regex(input, "i"),
                         Criteria.where("department").regex(input, "i")
                 ),
-                Criteria.where("active").is(true)
+                Criteria.where(ACTIVE).is(true)
         );
         Query query = new Query(criteria).with(pageable);
         List<User> userList = mongoTemplate.find(query, User.class);
@@ -58,9 +60,33 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
         criteria.andOperator(
                 Criteria.where(field).regex(value, "i"),
-                Criteria.where("active").is(true)
+                Criteria.where(ACTIVE).is(true)
         );
         Query query = new Query().addCriteria(criteria);
         return mongoTemplate.count(query, User.class);
+    }
+
+    @Override
+    public List<User> findByEmail(String email) {
+        Criteria criteria = new Criteria();
+
+        criteria.andOperator(
+                Criteria.where("email").is(email),
+                Criteria.where(ACTIVE).is(true)
+        );
+        Query query = new Query().addCriteria(criteria);
+        return mongoTemplate.find(query, User.class);
+    }
+
+    @Override
+    public List<User> findByFieldWithFixedValue(String field, String value) {
+        Criteria criteria = new Criteria();
+
+        criteria.andOperator(
+                Criteria.where(field).is(value),
+                Criteria.where(ACTIVE).is(true)
+        );
+        Query query = new Query().addCriteria(criteria);
+        return mongoTemplate.find(query, User.class);
     }
 }

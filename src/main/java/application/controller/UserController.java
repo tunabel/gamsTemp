@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 
 @CrossOrigin(origins = "*")
@@ -27,35 +28,27 @@ public class UserController implements BaseController {
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
-
-        try {
-            Pageable pageable = PageRequest.of(pageReq.getCurrentPage() - 1, pageReq.getNumberRecord());
-            Page<User> userPage;
-            if (search == null || search.isEmpty()) {
-                userPage = userService.findAllActiveWithPaging(pageable);
-            } else {
-                userPage = userService.findByQuery(search, pageable);
-            }
-
-            List<User> userList = userPage.getContent();
-
-            if (userList.isEmpty()) {
-                throw new UserListEmptyException("User List is empty");
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("users", userList);
-            response.put("currentPage", userPage.getNumber() + 1);
-            response.put("currentNumberOfRecords", userPage.getNumberOfElements());
-            response.put("totalPages", userPage.getTotalPages());
-            response.put("totalNumberOfRecords", userPage.getTotalElements());
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("Error", "Server Error");
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        Pageable pageable = PageRequest.of(pageReq.getCurrentPage() - 1, pageReq.getNumberRecord());
+        Page<User> userPage;
+        if (search == null || search.isEmpty()) {
+            userPage = userService.findAllActiveWithPaging(pageable);
+        } else {
+            userPage = userService.findByQuery(search, pageable);
         }
+
+        if (userPage.isEmpty()) {
+            throw new UserListEmptyException("User List is empty");
+        }
+
+        List<User> userList = userPage.getContent();
+        Map<String, Object> response = new HashMap<>();
+        response.put("users", userList);
+        response.put("currentPage", userPage.getNumber() + 1);
+        response.put("currentNumberOfRecords", userPage.getNumberOfElements());
+        response.put("totalPages", userPage.getTotalPages());
+        response.put("totalNumberOfRecords", userPage.getTotalElements());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -121,17 +114,17 @@ public class UserController implements BaseController {
     public ResponseEntity<Object> update(@RequestBody UserDTO dto) {
 
         try {
-            Optional<User> user1 = userService.findById(dto.getId());
+            List<User> userListFoundById = userService.findById(dto.getId());
 
-            if (user1.isEmpty()) {
+            if (userListFoundById.isEmpty()) {
                 return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
             }
 
-            User foundUser = user1.get();
-            Optional<User> user2 = userService.findByEmail(dto.getEmail());
+            User userFoundById = userListFoundById.get(0);
+            List<User> userListFoundByEmail = userService.findByEmail(dto.getEmail());
 
-            if (user2.isPresent() && !user2.get().getId().equals(foundUser.getId())) {
-                return new ResponseEntity<>("Email existed", HttpStatus.BAD_REQUEST);
+            if (!userListFoundByEmail.isEmpty() && !userListFoundByEmail.get(0).getId().equals(userFoundById.getId())) {
+                return new ResponseEntity<>("Email existed. Try again", HttpStatus.BAD_REQUEST);
             }
 
             User updatedUser = new User();
@@ -143,9 +136,10 @@ public class UserController implements BaseController {
             updatedUser.setBirthPlace(dto.getBirthPlace());
             updatedUser.setDepartment(dto.getDepartment());
             updatedUser.setRole(dto.getRole());
+            updatedUser.setActive(true);
             userService.update(updatedUser);
 
-            return new ResponseEntity<>("Updated successfully user id: "+updatedUser.getId(), HttpStatus.OK);
+            return new ResponseEntity<>("Updated successfully user id: " + updatedUser.getId(), HttpStatus.OK);
 
         } catch (Exception e) {
             return new ResponseEntity<>("Bad request", HttpStatus.BAD_REQUEST);
@@ -153,14 +147,13 @@ public class UserController implements BaseController {
     }
 
 
-
     @GetMapping(value = "/{id}")
     public ResponseEntity<Object> findById(@PathVariable String id) {
 
-        Optional<User> user = userService.findById(id);
+        List<User> userList = userService.findById(id);
 
-        if (user.isPresent()) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
+        if (!userList.isEmpty()) {
+            return new ResponseEntity<>(userList.get(0), HttpStatus.OK);
         } else {
             return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
         }
@@ -168,10 +161,10 @@ public class UserController implements BaseController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Object> deactivate(@PathVariable String id) {
-        Optional<User> optionalUser = userService.findById(id);
+        List<User> userList = userService.findById(id);
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        if (!userList.isEmpty()) {
+            User user = userList.get(0);
             user.setActive(false);
             userService.update(user);
 
@@ -184,7 +177,7 @@ public class UserController implements BaseController {
     @GetMapping(value = "/count/")
     public ResponseEntity<Map<String, Object>> count(@RequestParam String field, @RequestParam String value) {
 
-        String[] fieldList = {"firstName","surName","email","birthPlace","birthYear","department","role"};
+        String[] fieldList = {"firstName", "surName", "email", "birthPlace", "birthYear", "department", "role"};
         if (!Arrays.asList(fieldList).contains(field)) {
             Map<String, Object> response = new HashMap<>();
             response.put("Get Error", "Invalid Field Name");
