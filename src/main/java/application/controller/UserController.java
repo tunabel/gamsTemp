@@ -146,8 +146,8 @@ public class UserController implements BaseController {
     @GetMapping(value = "/count/")
     public ResponseEntity<Map<String, Object>> count(@RequestParam String field, @RequestParam String value) {
 
-        Set<String> fieldList = Set.of("firstName","surName","email","birthPlace","birthYear","department","role");
-        if (!fieldList.contains(field)) {
+        String[] fieldList = {"firstName","surName","email","birthPlace","birthYear","department","role"};
+        if (!Arrays.asList(fieldList).contains(field)) {
             Map<String, Object> response = new HashMap<>();
             response.put("Get Error", "Invalid Field Name");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
