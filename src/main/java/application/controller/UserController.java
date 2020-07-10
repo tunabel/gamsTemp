@@ -116,6 +116,44 @@ public class UserController implements BaseController {
         }
     }
 
+
+    @PutMapping(value = "/")
+    public ResponseEntity<Object> update(@RequestBody UserDTO dto) {
+
+        try {
+            Optional<User> user1 = userService.findById(dto.getId());
+
+            if (user1.isEmpty()) {
+                return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+            }
+
+            User foundUser = user1.get();
+            Optional<User> user2 = userService.findByEmail(dto.getEmail());
+
+            if (user2.isPresent() && !user2.get().getId().equals(foundUser.getId())) {
+                return new ResponseEntity<>("Email existed", HttpStatus.BAD_REQUEST);
+            }
+
+            User updatedUser = new User();
+            updatedUser.setId(dto.getId());
+            updatedUser.setFirstName(dto.getFirstName());
+            updatedUser.setSurName(dto.getSurName());
+            updatedUser.setEmail(dto.getEmail());
+            updatedUser.setBirthDay(LocalDate.of(dto.getBirthYear(), Month.JANUARY, 1));
+            updatedUser.setBirthPlace(dto.getBirthPlace());
+            updatedUser.setDepartment(dto.getDepartment());
+            updatedUser.setRole(dto.getRole());
+            userService.update(updatedUser);
+
+            return new ResponseEntity<>("Updated successfully user id: "+updatedUser.getId(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>("Bad request", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<Object> findById(@PathVariable String id) {
 
