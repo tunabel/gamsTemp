@@ -38,8 +38,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int countByEmail(String email) {
+    public long countByEmail(String email) {
         return userRepository.countByEmail(email);
+    }
+
+    @Override
+    public long countByField(String field, String value) {
+        return userRepository.countByField(field, value);
     }
 
     @Override

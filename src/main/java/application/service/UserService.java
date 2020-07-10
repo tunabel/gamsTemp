@@ -17,7 +17,9 @@ public interface UserService {
 
     Page<User> findByQuery(String input, Pageable pageable);
 
-    int countByEmail(String email);
+    long countByEmail(String email);
+
+    long countByField(String field, String value);
 
     void insert(User user);
 
