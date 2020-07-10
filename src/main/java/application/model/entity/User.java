@@ -1,9 +1,6 @@
 package application.model.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -17,8 +14,8 @@ public class User extends AbstractObject {
     private String surName;
     private String email;
     private LocalDate birthDay;
-    @Getter
-    @Setter
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private int birthYear;
     private String birthPlace;
     private String department;
