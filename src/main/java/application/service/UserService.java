@@ -18,6 +18,8 @@ public interface UserService {
 
     Page<User> findByQuery(String input, Pageable pageable);
 
+    List<User> findByQuery(String input);
+
     long countByEmail(String email);
 
     long countByField(String field, String value);
