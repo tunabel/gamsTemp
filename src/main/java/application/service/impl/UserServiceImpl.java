@@ -12,10 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService  {
 
     @Autowired
     private UserRepository userRepository;
+
 
     @Override
     public Page<User> findAllActiveWithPaging(Pageable pageable) {
@@ -32,10 +33,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id);
     }
 
+
+
     @Override
     public long countByEmail(String email) {
         return userRepository.countByEmail(email);
     }
+
 
     @Override
     public void insert(User user) {
@@ -43,8 +47,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void update(User user) {
-        userRepository.save(user);
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public void update (User user) {
+       userRepository.save(user);
     }
 
     @Override

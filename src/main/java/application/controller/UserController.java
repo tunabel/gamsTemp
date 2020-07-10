@@ -3,8 +3,10 @@ package application.controller;
 import application.data.PageReq;
 import application.model.entity.User;
 import application.model.dto.UserDTO;
+import application.repository.UserRepository;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,11 +15,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Generated;
+import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Month;
+import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -26,6 +28,9 @@ public class UserController implements BaseController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> findAllActiveWithPaging(@RequestBody PageReq pageReq) {
@@ -83,6 +88,7 @@ public class UserController implements BaseController {
         }
     }
 
+
     @PostMapping(value = "/")
     public ResponseEntity<Object> insert(@RequestBody UserDTO dto) {
         try {
@@ -105,6 +111,44 @@ public class UserController implements BaseController {
         }
     }
 
+
+    @PutMapping(value = "/")
+    public ResponseEntity<Object> update(@RequestBody UserDTO dto) {
+
+        try {
+            Optional<User> user1 = userService.findById(dto.getId());
+
+            if (user1.isEmpty()) {
+                return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+            }
+
+            User foundUser = user1.get();
+            Optional<User> user2 = userService.findByEmail(dto.getEmail());
+
+            if (user2.isPresent() && !user2.get().getId().equals(foundUser.getId())) {
+                return new ResponseEntity<>("Email existed", HttpStatus.BAD_REQUEST);
+            }
+
+            User updatedUser = new User();
+            updatedUser.setId(dto.getId());
+            updatedUser.setFirstName(dto.getFirstName());
+            updatedUser.setSurName(dto.getSurName());
+            updatedUser.setEmail(dto.getEmail());
+            updatedUser.setBirthDay(LocalDate.of(dto.getBirthYear(), Month.JANUARY, 1));
+            updatedUser.setBirthPlace(dto.getBirthPlace());
+            updatedUser.setDepartment(dto.getDepartment());
+            updatedUser.setRole(dto.getRole());
+            userService.update(updatedUser);
+
+            return new ResponseEntity<>("Updated successfully user id: "+updatedUser.getId(), HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>("Bad request", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<Object> findById(@PathVariable String id) {
 
@@ -116,6 +160,7 @@ public class UserController implements BaseController {
             return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
         }
     }
+
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Object> delete(@PathVariable String id) {
