@@ -1,7 +1,8 @@
 package application.controller;
 
-import application.controller.exception.UserListEmptyException;
+import application.controller.exception.*;
 import application.model.common.PageReq;
+import application.model.common.UserField;
 import application.model.entity.User;
 import application.model.dto.UserDTO;
 import application.service.UserService;
@@ -14,8 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.*;
 
 @CrossOrigin(origins = "*")
@@ -23,11 +22,19 @@ import java.util.*;
 @RequestMapping(value = "/api/users")
 public class UserController implements BaseController {
 
+    private static final String CONNECTION_ERROR = "Connection error";
+    private static final String ID_NOT_FOUND = "Submitted id not found: ";
+
     @Autowired
     private UserService userService;
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
+
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
         Pageable pageable = PageRequest.of(pageReq.getCurrentPage() - 1, pageReq.getNumberRecord());
         Page<User> userPage;
         if (search == null || search.isEmpty()) {
@@ -54,6 +61,10 @@ public class UserController implements BaseController {
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> findAllActive(@RequestParam(required = false) String search) {
 
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
         List<User> userList;
         if (search == null || search.isEmpty()) {
             userList = userService.findAllActive();
@@ -61,144 +72,128 @@ public class UserController implements BaseController {
             userList = userService.findByQuery(search);
         }
 
-        try {
-            if (userList.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("users", userList);
-            response.put("totalNumberOfRecords", userList.size());
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("Error", "Server Error");
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (userList.isEmpty()) {
+            throw new UserListEmptyException("User List is empty");
         }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("users", userList);
+        response.put("totalNumberOfRecords", userList.size());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping(value = "/")
     public ResponseEntity<Map<String, Object>> insert(@RequestBody UserDTO dto) {
 
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
+        if (!userService.isEmailFormattedCorrectly(dto.getEmail())) {
+            throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
+        }
+
         long count = userService.countByEmail(dto.getEmail());
 
         if (count > 0) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("Post Error", "Email existed");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            throw new EmailExistedException("Submitted email of " + dto.getEmail() + " existed in the database");
         }
 
-        try {
-            User user = new User();
-            user.setActive(true);
-            user.setFirstName(dto.getFirstName());
-            user.setSurName(dto.getSurName());
-            user.setEmail(dto.getEmail());
-            user.setBirthDay(LocalDate.of(dto.getBirthYear(), 1, 1));
-            user.setBirthPlace(dto.getBirthPlace());
-            user.setDepartment(dto.getDepartment());
-            user.setRole(dto.getRole());
+        User user = userService.upsertWithDTO(dto);
 
-            userService.insert(user);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "New user created.");
-            response.put("userId", user.getId());
-            response.put("user", user);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("Post Error", "Bad Request");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "New user created.");
+        response.put("userId", user.getId());
+        response.put("user", user);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 
     @PutMapping(value = "/")
-    public ResponseEntity<Object> update(@RequestBody UserDTO dto) {
+    public ResponseEntity<Map<String, Object>> update(@RequestBody UserDTO dto) {
 
-        try {
-            List<User> userListFoundById = userService.findById(dto.getId());
-
-            if (userListFoundById.isEmpty()) {
-                return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
-            }
-
-            User userFoundById = userListFoundById.get(0);
-            List<User> userListFoundByEmail = userService.findByEmail(dto.getEmail());
-
-            if (!userListFoundByEmail.isEmpty() && !userListFoundByEmail.get(0).getId().equals(userFoundById.getId())) {
-                return new ResponseEntity<>("Email existed. Try again", HttpStatus.BAD_REQUEST);
-            }
-
-            User updatedUser = new User();
-            updatedUser.setId(dto.getId());
-            updatedUser.setFirstName(dto.getFirstName());
-            updatedUser.setSurName(dto.getSurName());
-            updatedUser.setEmail(dto.getEmail());
-            updatedUser.setBirthDay(LocalDate.of(dto.getBirthYear(), Month.JANUARY, 1));
-            updatedUser.setBirthPlace(dto.getBirthPlace());
-            updatedUser.setDepartment(dto.getDepartment());
-            updatedUser.setRole(dto.getRole());
-            updatedUser.setActive(true);
-            userService.update(updatedUser);
-
-            return new ResponseEntity<>("Updated successfully user id: " + updatedUser.getId(), HttpStatus.OK);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>("Bad request", HttpStatus.BAD_REQUEST);
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
         }
-    }
 
+        if (!userService.isEmailFormattedCorrectly(dto.getEmail())) {
+            throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
+        }
+
+        List<User> userListFoundById = userService.findById(dto.getId());
+
+        if (userListFoundById.isEmpty()) {
+            throw new UserNotFoundException(ID_NOT_FOUND + dto.getId());
+        }
+
+        User userFoundById = userListFoundById.get(0);
+        List<User> userListFoundByEmail = userService.findByEmail(dto.getEmail());
+
+        if (!userListFoundByEmail.isEmpty() && !userListFoundByEmail.get(0).getId().equals(userFoundById.getId())) {
+            throw new EmailExistedException("Submitted email of " + dto.getEmail() + " existed in the database");
+        }
+
+        User updatedUser = userService.upsertWithDTO(dto);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Updated successfully user id: " + updatedUser.getId());
+        response.put("userId", updatedUser.getId());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<Object> findById(@PathVariable String id) {
 
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
         List<User> userList = userService.findById(id);
 
-        if (!userList.isEmpty()) {
-            return new ResponseEntity<>(userList.get(0), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
+        if (userList.isEmpty()) {
+            throw new UserNotFoundException(ID_NOT_FOUND + id);
         }
+
+        return new ResponseEntity<>(userList.get(0), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Object> deactivate(@PathVariable String id) {
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
         List<User> userList = userService.findById(id);
 
-        if (!userList.isEmpty()) {
-            User user = userList.get(0);
-            user.setActive(false);
-            userService.update(user);
-
-            return new ResponseEntity<>("User deactivated successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("User ID is not found.", HttpStatus.NOT_FOUND);
+        if (userList.isEmpty()) {
+            throw new UserNotFoundException(ID_NOT_FOUND + id);
         }
+
+        User user = userList.get(0);
+        user.setActive(false);
+        userService.update(user);
+
+        return new ResponseEntity<>("User deactivated successfully", HttpStatus.OK);
     }
 
     @GetMapping(value = "/count/")
     public ResponseEntity<Map<String, Object>> count(@RequestParam String field, @RequestParam String value) {
 
-        String[] fieldList = {"firstName", "surName", "email", "birthPlace", "birthYear", "department", "role"};
+        String[] fieldList = {
+                UserField.FIRSTNAME.getName(),
+                UserField.SURNAME.getName(),
+                UserField.EMAIL.getName(),
+                UserField.DEPARTMENT.getName(),
+                UserField.BIRTHYEAR.getName(),
+                UserField.BIRTHPLACE.getName(),
+                UserField.ROLE.getName(),
+        };
         if (!Arrays.asList(fieldList).contains(field)) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("Get Error", "Invalid Field Name");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            throw new UserFieldIncorrectException("Incorrect parameter of user field");
         }
 
-        try {
-            long count = userService.countByField(field, value);
-            Map<String, Object> response = new HashMap<>();
-            response.put("totalCount", count);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("Get Error", "Bad Request");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
+        long count = userService.countByField(field, value);
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalCount", count);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

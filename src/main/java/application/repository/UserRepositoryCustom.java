@@ -22,4 +22,5 @@ public interface UserRepositoryCustom {
 
     List<User> findByFieldWithFixedValue(String field, String value);
 
+    boolean isConnectionOK();
 }

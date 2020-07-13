@@ -3,6 +3,7 @@ package application.repository.impl;
 import application.model.common.UserField;
 import application.model.entity.User;
 import application.repository.UserRepositoryCustom;
+import com.mongodb.client.MongoDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -82,13 +83,13 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         return mongoTemplate.count(query, User.class);
     }
 
+    //find by Email will check for duplication among deactivated users, so I removed the check for active users.
     @Override
     public List<User> findByEmail(String email) {
         Criteria criteria = new Criteria();
 
         criteria.andOperator(
-                Criteria.where(UserField.EMAIL.getName()).is(email),
-                Criteria.where(UserField.ACTIVE.getName()).is(true)
+                Criteria.where(UserField.EMAIL.getName()).is(email)
         );
         Query query = new Query().addCriteria(criteria);
         return mongoTemplate.find(query, User.class);
@@ -104,5 +105,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         );
         Query query = new Query().addCriteria(criteria);
         return mongoTemplate.find(query, User.class);
+    }
+
+    @Override
+    public boolean isConnectionOK() {
+        MongoDatabase db = mongoTemplate.getDb();
+        return !db.getName().isEmpty();
     }
 }

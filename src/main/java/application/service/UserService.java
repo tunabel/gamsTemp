@@ -1,5 +1,6 @@
 package application.service;
 
+import application.model.dto.UserDTO;
 import application.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +25,11 @@ public interface UserService {
 
     long countByField(String field, String value);
 
-    void insert(User user);
+    User upsertWithDTO(UserDTO dto);
 
     void update(User user);
+
+    boolean isConnectionOK();
+
+    boolean isEmailFormattedCorrectly(String email);
 }

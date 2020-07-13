@@ -1,5 +1,6 @@
 package application.service.impl;
 
+import application.model.dto.UserDTO;
 import application.model.entity.User;
 import application.repository.UserRepository;
 import application.service.UserService;
@@ -8,7 +9,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -57,11 +62,44 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void insert(User user) {
+    public User upsertWithDTO(UserDTO dto) {
+
+        String id = dto.getId();
+        User user = new User();
+
+        if (id != null) {
+            user.setId(id);
+        }
+
+        user.setActive(true);
+        user.setFirstName(dto.getFirstName());
+        user.setSurName(dto.getSurName());
+        user.setEmail(dto.getEmail());
+        user.setBirthDay(LocalDate.of(dto.getBirthYear(), Month.JANUARY, 1));
+        user.setBirthPlace(dto.getBirthPlace());
+        user.setDepartment(dto.getDepartment());
+        user.setRole(dto.getRole());
+
         userRepository.save(user);
+
+        return user;
     }
 
+    @Override
     public void update(User user) {
         userRepository.save(user);
     }
+
+    @Override
+    public boolean isConnectionOK() {
+        return userRepository.isConnectionOK();
+    }
+
+    @Override
+    public boolean isEmailFormattedCorrectly(String email) {
+        Pattern pattern = Pattern.compile("@cmc.com.vn$");
+        Matcher matcher = pattern.matcher(email);
+        return matcher.find();
+    }
+
 }

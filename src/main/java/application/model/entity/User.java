@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 @Document(collection = "users")
 @Data
+@ToString
 @EqualsAndHashCode(callSuper = true) //get props from AbstractObject
 public class User extends AbstractObject {
     private String firstName;
