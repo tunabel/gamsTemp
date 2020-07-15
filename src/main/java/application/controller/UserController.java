@@ -1,7 +1,7 @@
 package application.controller;
 
 import application.controller.exception.*;
-import application.model.requestData.PageReq;
+import application.model.request.PageReq;
 import application.model.common.UserField;
 import application.model.entity.User;
 import application.model.dto.UserDTO;
@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -29,6 +30,7 @@ public class UserController implements BaseController {
     private UserService userService;
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
     public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
 
         if (!userService.isConnectionOK()) {
@@ -59,6 +61,7 @@ public class UserController implements BaseController {
     }
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
     public ResponseEntity<Map<String, Object>> findAllActive(@RequestParam(required = false) String search) {
 
         if (!userService.isConnectionOK()) {
@@ -82,65 +85,8 @@ public class UserController implements BaseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/")
-    public ResponseEntity<Map<String, Object>> insert(@RequestBody UserDTO dto) {
-
-        if (!userService.isConnectionOK()) {
-            throw new BadConnectionException(CONNECTION_ERROR);
-        }
-
-        if (!userService.isEmailFormattedCorrectly(dto.getUsername())) {
-            throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
-        }
-
-        long count = userService.countByUsername(dto.getUsername());
-
-        if (count > 0) {
-            throw new EmailExistedException("Submitted email of " + dto.getUsername() + " existed in the database");
-        }
-
-        User user = userService.upsertWithDTO(dto);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "New user created.");
-        response.put("userId", user.getId());
-        response.put("user", user);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-
-    @PutMapping(value = "/")
-    public ResponseEntity<Map<String, Object>> update(@RequestBody UserDTO dto) {
-
-        if (!userService.isConnectionOK()) {
-            throw new BadConnectionException(CONNECTION_ERROR);
-        }
-
-        if (!userService.isEmailFormattedCorrectly(dto.getUsername())) {
-            throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
-        }
-
-        List<User> userListFoundById = userService.findById(dto.getId());
-
-        if (userListFoundById.isEmpty()) {
-            throw new UserNotFoundException(ID_NOT_FOUND + dto.getId());
-        }
-
-        User userFoundById = userListFoundById.get(0);
-        List<User> userListFoundByEmail = userService.findByEmail(dto.getUsername());
-
-        if (!userListFoundByEmail.isEmpty() && !userListFoundByEmail.get(0).getId().equals(userFoundById.getId())) {
-            throw new EmailExistedException("Submitted email of " + dto.getUsername() + " existed in the database");
-        }
-
-        User updatedUser = userService.upsertWithDTO(dto);
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Updated successfully user id: " + updatedUser.getId());
-        response.put("userId", updatedUser.getId());
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @GetMapping(value = "/{id}")
+    @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
     public ResponseEntity<Object> findById(@PathVariable String id) {
 
         if (!userService.isConnectionOK()) {
@@ -156,7 +102,68 @@ public class UserController implements BaseController {
         return new ResponseEntity<>(userList.get(0), HttpStatus.OK);
     }
 
+    @PostMapping(value = "/")
+//    @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
+    public ResponseEntity<Map<String, Object>> insert(@RequestBody UserDTO dto) {
+
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
+        if (!userService.isEmailFormattedCorrectly(dto.getEmail())) {
+            throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
+        }
+
+        long count = userService.countByUsername(dto.getEmail());
+
+        if (count > 0) {
+            throw new EmailExistedException("Submitted email of " + dto.getEmail() + " existed in the database");
+        }
+
+        User user = userService.upsertWithDTO(dto);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "New user created.");
+        response.put("userId", user.getId());
+        response.put("user", user);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+    @PutMapping(value = "/")
+    @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
+    public ResponseEntity<Map<String, Object>> update(@RequestBody UserDTO dto) {
+
+        if (!userService.isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
+        if (!userService.isEmailFormattedCorrectly(dto.getEmail())) {
+            throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
+        }
+
+        List<User> userListFoundById = userService.findById(dto.getId());
+
+        if (userListFoundById.isEmpty()) {
+            throw new UserNotFoundException(ID_NOT_FOUND + dto.getId());
+        }
+
+        User userFoundById = userListFoundById.get(0);
+        List<User> userListFoundByEmail = userService.findByEmail(dto.getEmail());
+
+        if (!userListFoundByEmail.isEmpty() && !userListFoundByEmail.get(0).getId().equals(userFoundById.getId())) {
+            throw new EmailExistedException("Submitted email of " + dto.getEmail() + " existed in the database");
+        }
+
+        User updatedUser = userService.upsertWithDTO(dto);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Updated successfully user id: " + updatedUser.getId());
+        response.put("userId", updatedUser.getId());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
     public ResponseEntity<Object> deactivate(@PathVariable String id) {
         if (!userService.isConnectionOK()) {
             throw new BadConnectionException(CONNECTION_ERROR);
@@ -181,7 +188,7 @@ public class UserController implements BaseController {
         String[] fieldList = {
                 UserField.FIRSTNAME.getName(),
                 UserField.SURNAME.getName(),
-                UserField.USERNAME.getName(),
+                UserField.EMAIL.getName(),
                 UserField.DEPARTMENT.getName(),
                 UserField.BIRTHYEAR.getName(),
                 UserField.BIRTHPLACE.getName(),

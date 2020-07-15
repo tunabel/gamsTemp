@@ -44,8 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findByEmail(String username) {
-        return userRepository.findByUsername(username);
+    public List<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public long countByUsername(String username) {
-        return userRepository.countByUsername(username);
+        return userRepository.countByEmail(username);
     }
 
     @Override
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(dto.getFirstName());
         user.setSurName(dto.getSurName());
         user.setPassword(encoder.encode(dto.getPassword()));
-        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
         user.setBirthDay(LocalDate.of(dto.getBirthYear(), Month.JANUARY, 1));
         user.setBirthPlace(dto.getBirthPlace());
         user.setDepartment(dto.getDepartment());

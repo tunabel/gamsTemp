@@ -22,7 +22,7 @@ public class User extends AbstractObject {
     private String surName;
 
     @NotBlank
-    private String username;
+    private String email;
 
     private String password;
     private LocalDate birthDay;

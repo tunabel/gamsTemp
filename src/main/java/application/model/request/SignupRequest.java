@@ -1,4 +1,4 @@
-package application.model.requestData;
+package application.model.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +15,7 @@ public class SignupRequest {
     @NotBlank
     private String surName;
     @NotBlank
-    private String username;
+    private String email;
     @NotBlank
     private String password;
     @NotBlank

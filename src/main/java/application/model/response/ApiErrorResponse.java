@@ -1,4 +1,4 @@
-package application.model.responseData;
+package application.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

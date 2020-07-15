@@ -1,4 +1,4 @@
-package application.model.responseData;
+package application.model.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

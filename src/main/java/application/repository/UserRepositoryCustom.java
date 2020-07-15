@@ -18,7 +18,7 @@ public interface UserRepositoryCustom {
 
     long countByField(String field, String value);
 
-    List<User> findByUsername(String username);
+    List<User> findByEmail(String email);
 
     List<User> findByFieldWithFixedValue(String field, String value);
 

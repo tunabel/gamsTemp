@@ -1,8 +1,8 @@
 package application.controller;
 
 
-import application.model.requestData.LoginRequest;
-import application.model.responseData.JwtResponse;
+import application.model.request.LoginRequest;
+import application.model.response.JwtResponse;
 import application.repository.RoleRepository;
 import application.repository.UserRepository;
 import application.security.jwt.JwtUtils;
@@ -42,9 +42,9 @@ public class AuthController implements BaseController {
     JwtUtils jwtUtils;
 
     @PostMapping(value = "/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
