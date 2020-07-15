@@ -28,7 +28,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     @Override
     public Page<User> findAllActive(Pageable pageable) {
         Criteria criteria = Criteria.where(UserField.ACTIVE.getName()).is(true);
-        Query query = new Query(criteria).with(pageable);
+        Query query = new Query(criteria).limit(pageable.getPageSize()).skip(pageable.getPageNumber());
         List<User> userList = mongoTemplate.find(query, User.class);
         return new PageImpl<User>(userList, pageable, findAllActive().size());
     }
@@ -48,7 +48,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 ),
                 Criteria.where(UserField.ACTIVE.getName()).is(true)
         );
-        Query query = new Query(criteria).with(pageable);
+        Query query = new Query(criteria);
         List<User> userList = mongoTemplate.find(query, User.class);
 
         return new PageImpl<User>(userList, pageable, userList.size());
