@@ -1,17 +1,23 @@
 package application.service.impl;
 
 import application.model.dto.UserDTO;
+import application.model.entity.Role;
 import application.model.entity.User;
+import application.repository.RoleRepository;
 import application.repository.UserRepository;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +26,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder encoder;
 
     @Override
     public Page<User> findAllActiveWithPaging(Pageable pageable) {
@@ -32,8 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public List<User> findByEmail(String username) {
+        return userRepository.findByUsername(username);
     }
 
     @Override
@@ -52,8 +64,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public long countByEmail(String email) {
-        return userRepository.countByEmail(email);
+    public long countByUsername(String username) {
+        return userRepository.countByUsername(username);
     }
 
     @Override
@@ -74,11 +86,22 @@ public class UserServiceImpl implements UserService {
         user.setActive(true);
         user.setFirstName(dto.getFirstName());
         user.setSurName(dto.getSurName());
-        user.setEmail(dto.getEmail());
+        user.setPassword(encoder.encode(dto.getPassword()));
+        user.setUsername(dto.getUsername());
         user.setBirthDay(LocalDate.of(dto.getBirthYear(), Month.JANUARY, 1));
         user.setBirthPlace(dto.getBirthPlace());
         user.setDepartment(dto.getDepartment());
-        user.setRole(dto.getRole());
+
+        Set<String> strRoles = dto.getRoles();
+        Set<Role> roles = new HashSet<>();
+        for (String strRole : strRoles) {
+            Optional<Role> role = roleRepository.findById(strRole);
+            if (role.isPresent()) {
+                roles.add(role.get());
+            }
+        }
+
+        user.setRoles(roles);
 
         userRepository.save(user);
 

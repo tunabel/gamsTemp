@@ -42,7 +42,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 new Criteria().orOperator(
                         Criteria.where(UserField.FIRSTNAME.getName()).regex(input, "i"),
                         Criteria.where(UserField.SURNAME.getName()).regex(input, "i"),
-                        Criteria.where(UserField.EMAIL.getName()).regex(input, "i"),
+                        Criteria.where(UserField.USERNAME.getName()).regex(input, "i"),
                         Criteria.where(UserField.BIRTHPLACE.getName()).regex(input, "i"),
                         Criteria.where(UserField.DEPARTMENT.getName()).regex(input, "i")
                 ),
@@ -61,7 +61,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 new Criteria().orOperator(
                         Criteria.where(UserField.FIRSTNAME.getName()).regex(input, "i"),
                         Criteria.where(UserField.SURNAME.getName()).regex(input, "i"),
-                        Criteria.where(UserField.EMAIL.getName()).regex(input, "i"),
+                        Criteria.where(UserField.USERNAME.getName()).regex(input, "i"),
                         Criteria.where(UserField.BIRTHPLACE.getName()).regex(input, "i"),
                         Criteria.where(UserField.DEPARTMENT.getName()).regex(input, "i")
                 ),
@@ -85,11 +85,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
     //find by Email will check for duplication among deactivated users, so I removed the check for active users.
     @Override
-    public List<User> findByEmail(String email) {
+    public List<User> findByUsername(String username) {
         Criteria criteria = new Criteria();
 
         criteria.andOperator(
-                Criteria.where(UserField.EMAIL.getName()).is(email)
+                Criteria.where(UserField.USERNAME.getName()).is(username)
         );
         Query query = new Query().addCriteria(criteria);
         return mongoTemplate.find(query, User.class);

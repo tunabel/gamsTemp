@@ -21,7 +21,7 @@ public interface UserService {
 
     List<User> findByQuery(String input);
 
-    long countByEmail(String email);
+    long countByUsername(String username);
 
     long countByField(String field, String value);
 

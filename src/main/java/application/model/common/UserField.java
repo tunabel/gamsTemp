@@ -4,7 +4,7 @@ public enum UserField {
     ID("id"),
     FIRSTNAME("firstName"),
     SURNAME("surName"),
-    EMAIL("email"),
+    USERNAME("username"),
     BIRTHDAY("birthDay"),
     BIRTHYEAR("birthYear"),
     BIRTHPLACE("birthPlace"),

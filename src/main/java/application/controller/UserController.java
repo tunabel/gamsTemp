@@ -1,7 +1,7 @@
 package application.controller;
 
 import application.controller.exception.*;
-import application.model.common.PageReq;
+import application.model.requestData.PageReq;
 import application.model.common.UserField;
 import application.model.entity.User;
 import application.model.dto.UserDTO;
@@ -89,14 +89,14 @@ public class UserController implements BaseController {
             throw new BadConnectionException(CONNECTION_ERROR);
         }
 
-        if (!userService.isEmailFormattedCorrectly(dto.getEmail())) {
+        if (!userService.isEmailFormattedCorrectly(dto.getUsername())) {
             throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
         }
 
-        long count = userService.countByEmail(dto.getEmail());
+        long count = userService.countByUsername(dto.getUsername());
 
         if (count > 0) {
-            throw new EmailExistedException("Submitted email of " + dto.getEmail() + " existed in the database");
+            throw new EmailExistedException("Submitted email of " + dto.getUsername() + " existed in the database");
         }
 
         User user = userService.upsertWithDTO(dto);
@@ -116,7 +116,7 @@ public class UserController implements BaseController {
             throw new BadConnectionException(CONNECTION_ERROR);
         }
 
-        if (!userService.isEmailFormattedCorrectly(dto.getEmail())) {
+        if (!userService.isEmailFormattedCorrectly(dto.getUsername())) {
             throw new EmailWrongFormattingException("Submitted email must have address of @cmc.com.vn");
         }
 
@@ -127,10 +127,10 @@ public class UserController implements BaseController {
         }
 
         User userFoundById = userListFoundById.get(0);
-        List<User> userListFoundByEmail = userService.findByEmail(dto.getEmail());
+        List<User> userListFoundByEmail = userService.findByEmail(dto.getUsername());
 
         if (!userListFoundByEmail.isEmpty() && !userListFoundByEmail.get(0).getId().equals(userFoundById.getId())) {
-            throw new EmailExistedException("Submitted email of " + dto.getEmail() + " existed in the database");
+            throw new EmailExistedException("Submitted email of " + dto.getUsername() + " existed in the database");
         }
 
         User updatedUser = userService.upsertWithDTO(dto);
@@ -181,7 +181,7 @@ public class UserController implements BaseController {
         String[] fieldList = {
                 UserField.FIRSTNAME.getName(),
                 UserField.SURNAME.getName(),
-                UserField.EMAIL.getName(),
+                UserField.USERNAME.getName(),
                 UserField.DEPARTMENT.getName(),
                 UserField.BIRTHYEAR.getName(),
                 UserField.BIRTHPLACE.getName(),

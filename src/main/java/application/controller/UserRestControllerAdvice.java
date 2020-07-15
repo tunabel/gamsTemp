@@ -1,7 +1,7 @@
 package application.controller;
 
 import application.controller.exception.*;
-import application.model.common.ApiErrorResponse;
+import application.model.responseData.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -66,14 +66,14 @@ public class UserRestControllerAdvice {
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ApiErrorResponse> handleOtherException(Exception ex) {
-        ApiErrorResponse error = new ApiErrorResponse("INTERNAL_SERVER_ERROR", ex.getMessage());
-        error.setTimestamp(LocalDateTime.now());
-        error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//
+//    @ExceptionHandler(Exception.class)
+//    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ResponseEntity<ApiErrorResponse> handleOtherException(Exception ex) {
+//        ApiErrorResponse error = new ApiErrorResponse("INTERNAL_SERVER_ERROR", ex.getMessage());
+//        error.setTimestamp(LocalDateTime.now());
+//        error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
 }
