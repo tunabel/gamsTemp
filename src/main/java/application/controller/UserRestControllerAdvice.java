@@ -75,6 +75,14 @@ public class UserRestControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(PageRequestInvalidException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiErrorResponse> handlePageRequestInvalidException(PageRequestInvalidException ex) {
+        ApiErrorResponse error = new ApiErrorResponse("REQUEST_PAGE_INVALID", ex.getMessage());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody

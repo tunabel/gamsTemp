@@ -44,5 +44,4 @@ public class AuthController extends BaseController {
 
         return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
     }
-
 }

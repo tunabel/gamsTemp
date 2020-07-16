@@ -39,6 +39,10 @@ public class UserController extends BaseController {
             throw new BadConnectionException(CONNECTION_ERROR);
         }
 
+        if (pageReq.getCurrentPage() <= 0) {
+            throw new PageRequestInvalidException("Page index must not be less than zero");
+        }
+
         Pageable pageable = PageRequest.of(pageReq.getCurrentPage() - 1, pageReq.getNumberRecord());
         Page<User> userPage;
         if (search == null || search.isEmpty()) {
