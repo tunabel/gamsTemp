@@ -1,15 +1,11 @@
 package application.controller;
 
-import application.controller.exception.*;
 import application.model.request.PageReq;
-import application.model.common.UserField;
-import application.model.entity.User;
 import application.model.request.UpsertRequest;
+import application.model.response.UserResponse;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,38 +20,15 @@ import java.util.*;
 @RequestMapping(value = "/api/users")
 public class UserController extends BaseController {
 
-
-    private static final String CONNECTION_ERROR = "Connection error";
-    private static final String ID_NOT_FOUND = "Submitted id not found: ";
-
     @Autowired
     private UserService userService;
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> findAllActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
+    public ResponseEntity<Map<String, Object>> findActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
+        Page<UserResponse> userPage = userService.findActiveByQueryWithPagination(search, pageReq);
 
-        if (!userService.isConnectionOK()) {
-            throw new BadConnectionException(CONNECTION_ERROR);
-        }
-
-        if (pageReq.getCurrentPage() <= 0) {
-            throw new PageRequestInvalidException("Page index must not be less than zero");
-        }
-
-        Pageable pageable = PageRequest.of(pageReq.getCurrentPage() - 1, pageReq.getNumberRecord());
-        Page<User> userPage;
-        if (search == null || search.isEmpty()) {
-            userPage = userService.findAllActiveWithPaging(pageable);
-        } else {
-            userPage = userService.findByQuery(search, pageable);
-        }
-
-        if (userPage.isEmpty()) {
-            throw new UserListEmptyException("User List is empty");
-        }
-
-        List<User> userList = userPage.getContent();
+        List<UserResponse> userList = userPage.getContent();
         Map<String, Object> response = new HashMap<>();
         response.put("users", userList);
         response.put("currentPage", userPage.getNumber() + 1);
@@ -68,22 +41,8 @@ public class UserController extends BaseController {
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> findAllActive(@RequestParam(required = false) String search) {
-
-        if (!userService.isConnectionOK()) {
-            throw new BadConnectionException(CONNECTION_ERROR);
-        }
-
-        List<User> userList;
-        if (search == null || search.isEmpty()) {
-            userList = userService.findAllActive();
-        } else {
-            userList = userService.findByQuery(search);
-        }
-
-        if (userList.isEmpty()) {
-            throw new UserListEmptyException("User List is empty");
-        }
+    public ResponseEntity<Map<String, Object>> findActive(@RequestParam(required = false) String search) {
+        List<UserResponse> userList = userService.findActiveByQuery(search);
 
         Map<String, Object> response = new HashMap<>();
         response.put("users", userList);
@@ -94,24 +53,15 @@ public class UserController extends BaseController {
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
     public ResponseEntity<Object> findById(@PathVariable String id) {
+        UserResponse user = userService.findById(id);
 
-        if (!userService.isConnectionOK()) {
-            throw new BadConnectionException(CONNECTION_ERROR);
-        }
-
-        List<User> userList = userService.findById(id);
-
-        if (userList.isEmpty()) {
-            throw new UserNotFoundException(ID_NOT_FOUND + id);
-        }
-
-        return new ResponseEntity<>(userList.get(0), HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping(value = "/")
 //    @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
     public ResponseEntity<Map<String, Object>> insert(@RequestBody @Valid UpsertRequest request) {
-        User user = userService.upsert(request);
+        UserResponse user = userService.upsert(request);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "New user created.");
@@ -120,11 +70,10 @@ public class UserController extends BaseController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-
     @PutMapping(value = "/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> update(@RequestBody @Valid UpsertRequest dto) {
-        User updatedUser = userService.upsert(dto);
+    public ResponseEntity<Map<String, Object>> update(@RequestBody @Valid UpsertRequest request) {
+        UserResponse updatedUser = userService.upsert(request);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Updated successfully user: " + updatedUser.getFirstName() + " " + updatedUser.getSurName());
@@ -135,40 +84,15 @@ public class UserController extends BaseController {
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
     public ResponseEntity<Object> deactivate(@PathVariable String id) {
-        if (!userService.isConnectionOK()) {
-            throw new BadConnectionException(CONNECTION_ERROR);
-        }
+        String name = userService.deactivate(id);
 
-        List<User> userList = userService.findById(id);
-
-        if (userList.isEmpty()) {
-            throw new UserNotFoundException(ID_NOT_FOUND + id);
-        }
-
-        User user = userList.get(0);
-        user.setActive(false);
-        userService.update(user);
-
-        return new ResponseEntity<>("User deactivated successfully", HttpStatus.OK);
+        return new ResponseEntity<>("User " + name + " deactivated successfully!", HttpStatus.OK);
     }
 
     @GetMapping(value = "/count/")
     public ResponseEntity<Map<String, Object>> count(@RequestParam String field, @RequestParam String value) {
-
-        String[] fieldList = {
-                UserField.FIRSTNAME.getName(),
-                UserField.SURNAME.getName(),
-                UserField.EMAIL.getName(),
-                UserField.DEPARTMENT.getName(),
-                UserField.BIRTHYEAR.getName(),
-                UserField.BIRTHPLACE.getName(),
-                UserField.ROLE.getName(),
-        };
-        if (!Arrays.asList(fieldList).contains(field)) {
-            throw new UserFieldIncorrectException("Incorrect parameter of user field");
-        }
-
         long count = userService.countByField(field, value);
+
         Map<String, Object> response = new HashMap<>();
         response.put("totalCount", count);
         return new ResponseEntity<>(response, HttpStatus.OK);

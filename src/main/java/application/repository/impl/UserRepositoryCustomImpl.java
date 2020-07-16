@@ -1,19 +1,15 @@
 package application.repository.impl;
 
-import application.controller.exception.PageRequestInvalidException;
 import application.model.common.UserField;
 import application.model.entity.User;
 import application.repository.UserRepositoryCustom;
 import com.mongodb.client.MongoDatabase;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
@@ -28,15 +24,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public Page<User> findAllActive(Pageable pageable) {
-        Criteria criteria = Criteria.where(UserField.ACTIVE.getName()).is(true);
-        Query query = new Query(criteria).with(pageable);
-        List<User> userList = mongoTemplate.find(query, User.class);
-        return new PageImpl<User>(userList, pageable, findAllActive().size());
-    }
-
-    @Override
-    public Page<User> findByQuery(String input, Pageable pageable) {
+    public List<User> findActiveByQueryWithPagination(String input, Pageable pageable) {
 
         Criteria criteria = new Criteria();
 
@@ -51,30 +39,12 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 Criteria.where(UserField.ACTIVE.getName()).is(true)
         );
         Query query = new Query(criteria);
-        List<User> userList = mongoTemplate.find(query, User.class);
-        int fetchedListSize = userList.size();
-        int pageNoReq = pageable.getPageNumber();
-        int pageSzReq = pageable.getPageSize();
+        return mongoTemplate.find(query, User.class);
 
-        int totalFetchedPage = fetchedListSize / pageSzReq + ((fetchedListSize % pageSzReq) > 0 ? 1 : 0);
-
-        if (pageNoReq >= totalFetchedPage) {
-            throw new PageRequestInvalidException("Page number exceeds limit");
-        }
-
-        int startingIndex = (pageNoReq == 0) ? 0 : pageNoReq * pageSzReq;
-        int endIndex = (pageNoReq + 1 == totalFetchedPage) ? fetchedListSize : (pageNoReq + 1) * pageSzReq;
-
-        List<User> pageList = new ArrayList<>();
-
-        for (int i = startingIndex; i < endIndex; i++) {
-            pageList.add(userList.get(i));
-        }
-        return new PageImpl<User>(pageList, pageable, userList.size());
     }
 
     @Override
-    public List<User> findByQuery(String input) {
+    public List<User> findActiveByQuery(String input) {
 
         Criteria criteria = new Criteria().andOperator(
                 new Criteria().orOperator(

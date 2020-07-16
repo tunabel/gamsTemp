@@ -1,35 +1,30 @@
 package application.service;
 
 import application.model.entity.User;
+import application.model.request.PageReq;
 import application.model.request.UpsertRequest;
+import application.model.response.UserResponse;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface UserService {
 
-    Page<User> findAllActiveWithPaging(Pageable pageable);
-
-    List<User> findAllActive();
-
-    List<User> findById(String id);
+    UserResponse findById(String id);
 
     List<User> findByEmail(String email);
 
-    Page<User> findByQuery(String input, Pageable pageable);
+    Page<UserResponse> findActiveByQueryWithPagination(String input, PageReq pageReq);
 
-    List<User> findByQuery(String input);
+    List<UserResponse> findActiveByQuery(String input);
 
     long countByUsername(String username);
 
     long countByField(String field, String value);
 
-    User upsert(UpsertRequest request);
+    UserResponse upsert(UpsertRequest request);
 
-    void update(User user);
+    String deactivate(String id);
 
     boolean isConnectionOK();
-
-    boolean isEmailFormattedCorrectly(String email);
 }
