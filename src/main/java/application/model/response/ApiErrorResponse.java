@@ -3,19 +3,22 @@ package application.model.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApiErrorResponse {
 
-    String errorCode;
-    String errorMsg;
-    int status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    LocalDateTime timestamp;
+    LocalDateTime timestamp = LocalDateTime.now();
+    int status;
+    String errorCode;
+    String errorMessage;
+    List<Violation> errors = new ArrayList<>();
 
-    public ApiErrorResponse(String errorCode, String errorMsg) {
+    public ApiErrorResponse(String errorCode, String errorMessage) {
         super();
         this.errorCode = errorCode;
-        this.errorMsg = errorMsg;
+        this.errorMessage = errorMessage;
     }
 
     public String getErrorCode() {
@@ -26,12 +29,12 @@ public class ApiErrorResponse {
         this.errorCode = errorCode;
     }
 
-    public String getErrorMsg() {
-        return errorMsg;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
-    public void setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public int getStatus() {
@@ -46,7 +49,11 @@ public class ApiErrorResponse {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public List<Violation> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<Violation> errors) {
+        this.errors = errors;
     }
 }

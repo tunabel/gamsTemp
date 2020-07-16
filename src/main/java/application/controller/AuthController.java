@@ -3,8 +3,6 @@ package application.controller;
 
 import application.model.request.LoginRequest;
 import application.model.response.JwtResponse;
-import application.repository.RoleRepository;
-import application.repository.UserRepository;
 import application.security.jwt.JwtUtils;
 import application.security.jwtservice.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -24,19 +21,10 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(value = "/api/auth")
-public class AuthController implements BaseController {
+public class AuthController extends BaseController {
 
     @Autowired
     AuthenticationManager authenticationManager;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
-    PasswordEncoder encoder;
 
     @Autowired
     JwtUtils jwtUtils;

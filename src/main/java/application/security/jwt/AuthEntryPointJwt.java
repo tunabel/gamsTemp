@@ -6,7 +6,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -17,9 +16,22 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class);
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        logger.error("Unauthorized error: {}", authException.getMessage());
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+        String authExMsg = authException.getMessage();
+        logger.error("Unauthorized error: {}", authExMsg);
 
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        String errorMsg;
+        int errorStatus;
+
+        if (authExMsg.equals("Bad credentials")) {
+            errorMsg = "Incorrect email and password combination";
+            errorStatus = HttpServletResponse.SC_BAD_REQUEST;
+        } else {
+            errorMsg = authExMsg;
+            errorStatus = HttpServletResponse.SC_UNAUTHORIZED;
+        }
+
+        response.sendError(errorStatus, errorMsg);
+
     }
 }

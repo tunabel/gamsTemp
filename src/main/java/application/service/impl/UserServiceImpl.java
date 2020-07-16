@@ -1,8 +1,12 @@
 package application.service.impl;
 
-import application.model.dto.UserDTO;
+import application.controller.exception.BadConnectionException;
+import application.controller.exception.EmailExistedException;
+import application.controller.exception.RoleNotFoundException;
+import application.controller.exception.UserNotFoundException;
 import application.model.entity.Role;
 import application.model.entity.User;
+import application.model.request.UpsertRequest;
 import application.repository.RoleRepository;
 import application.repository.UserRepository;
 import application.service.UserService;
@@ -23,6 +27,9 @@ import java.util.regex.Pattern;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final String CONNECTION_ERROR = "Connection error";
+    private static final String ID_NOT_FOUND = "Submitted id not found: ";
 
     @Autowired
     private UserRepository userRepository;
@@ -74,30 +81,55 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User upsertWithDTO(UserDTO dto) {
+    public User upsert(UpsertRequest request) {
 
-        String id = dto.getId();
+        if (!isConnectionOK()) {
+            throw new BadConnectionException(CONNECTION_ERROR);
+        }
+
         User user = new User();
 
-        if (id != null) {
-            user.setId(id);
+        if (request.getId() != null) {
+            user.setId(request.getId());
+
+            List<User> userListFoundById = findById(request.getId());
+
+            if (userListFoundById.isEmpty()) {
+                throw new UserNotFoundException(ID_NOT_FOUND + request.getId());
+            }
+
+            User userFoundById = userListFoundById.get(0);
+            List<User> userListFoundByEmail = findByEmail(request.getEmail());
+
+            if (!userListFoundByEmail.isEmpty() && !userListFoundByEmail.get(0).getId().equals(userFoundById.getId())) {
+                throw new EmailExistedException("Submitted email of " + request.getEmail() + " existed in the database");
+            }
+        } else {
+            long count = countByUsername(request.getEmail());
+
+            if (count > 0) {
+                throw new EmailExistedException("Submitted email of " + request.getEmail() + " existed in the database");
+            }
         }
 
         user.setActive(true);
-        user.setFirstName(dto.getFirstName());
-        user.setSurName(dto.getSurName());
-        user.setPassword(encoder.encode(dto.getPassword()));
-        user.setEmail(dto.getEmail());
-        user.setBirthDay(LocalDate.of(dto.getBirthYear(), Month.JANUARY, 1));
-        user.setBirthPlace(dto.getBirthPlace());
-        user.setDepartment(dto.getDepartment());
+        user.setFirstName(request.getFirstName());
+        user.setSurName(request.getSurName());
+        user.setPassword(encoder.encode(request.getPassword()));
+        user.setEmail(request.getEmail());
+        user.setBirthDay(LocalDate.of(request.getBirthYear(), Month.JANUARY, 1));
+        user.setBirthPlace(request.getBirthPlace());
+        user.setDepartment(request.getDepartment());
 
-        Set<String> strRoles = dto.getRoles();
+        Set<String> strRoles = request.getRoles();
         Set<Role> roles = new HashSet<>();
+
         for (String strRole : strRoles) {
             Optional<Role> role = roleRepository.findById(strRole);
             if (role.isPresent()) {
                 roles.add(role.get());
+            } else {
+                throw new RoleNotFoundException("Submitted role not found");
             }
         }
 

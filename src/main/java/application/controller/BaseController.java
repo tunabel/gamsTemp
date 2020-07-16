@@ -1,5 +1,5 @@
 package application.controller;
 
-public interface BaseController {
+public class BaseController {
 
 }

@@ -1,7 +1,7 @@
 package application.service;
 
-import application.model.dto.UserDTO;
 import application.model.entity.User;
+import application.model.request.UpsertRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,7 +25,7 @@ public interface UserService {
 
     long countByField(String field, String value);
 
-    User upsertWithDTO(UserDTO dto);
+    User upsert(UpsertRequest request);
 
     void update(User user);
 
