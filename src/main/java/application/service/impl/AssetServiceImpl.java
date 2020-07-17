@@ -33,7 +33,7 @@ public class AssetServiceImpl implements AssetService {
         Asset asset = new Asset();
 
         //SET ID AS AUTO INCREMENTING
-        asset.setId(String.valueOf(assetRepository.count()+1));
+        asset.setId(String.valueOf(assetRepository.count() + 1));
 
         asset.setName(request.getName());
         asset.setAssetTypeId(request.getAssetTypeId());
@@ -54,17 +54,19 @@ public class AssetServiceImpl implements AssetService {
          */
 
         asset.setStatus("0");
-        String year = request.getPurchaseDate().substring(0,4);
+        String year = request.getPurchaseDate().substring(0, 4);
         Optional<AssetGroup> assetGroupOptional = assetGroupRepository.findById(request.getAssetGroupId());
 
-        if (assetGroupOptional.isEmpty()) {
+        if (assetGroupOptional.isPresent()) {
+            String group = assetGroupOptional.get().getAbbreviation();
+
+            String countGroup = String.format("%03d", assetRepository.countByAssetGroup(request.getAssetGroupId()) + 1);
+
+            asset.setAssetCode(year.concat(group).concat(countGroup));
+        } else {
             throw new BadConnectionException("Bad asset group id");
         }
 
-        String group = assetGroupOptional.get().getAbbreviation();
-        String countGroup = String.format("%03d", assetRepository.countByAssetGroup(request.getAssetGroupId())+1);
-
-        asset.setAssetCode(year.concat(group).concat(countGroup));
 
         assetRepository.insert(asset);
 
