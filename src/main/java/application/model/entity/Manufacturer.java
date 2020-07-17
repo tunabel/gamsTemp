@@ -14,4 +14,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Manufacturer extends AbstractObject {
     String name;
     String note;
+    int value;
 }

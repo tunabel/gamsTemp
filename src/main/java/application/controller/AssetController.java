@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,23 @@ public class AssetController {
         response.put("message", "New asset created.");
         response.put("assetId", asset.getId());
         response.put("asset", asset);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/import/")
+    @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
+    public ResponseEntity<Map<String, Object>> insertAssetList(@Valid @RequestBody List<AssetAddRequest> request) {
+
+        List<Asset> assetList = new ArrayList<>();
+
+        for (AssetAddRequest asset: request) {
+         Asset newAsset = assetService.insert(asset);
+         assetList.add(newAsset);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "New asset list inserted.");
+        response.put("count", assetList.size());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

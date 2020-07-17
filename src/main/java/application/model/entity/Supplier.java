@@ -13,5 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class Supplier extends AbstractObject {
     String name;
+    int value;
     String note;
 }

@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 public class AssetGroup extends AbstractObject{
     String name;
+    int value;
     int assetType;
     boolean canBeAssociated;
     String abbreviation;

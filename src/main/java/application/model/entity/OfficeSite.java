@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OfficeSite extends AbstractObject {
-    int seqNum;
+    int value;
     String name;
     String address;
     String assignee;
