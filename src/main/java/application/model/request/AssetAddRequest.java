@@ -21,7 +21,7 @@ public class AssetAddRequest {
     String unit;
     String note;
     @NotNull(message = "Assigned site for asset is required")
-    String siteId;
+    String officeSiteId;
     String pic;
     @NotNull(message = "Manufacturer's data is required")
     String manufacturerId;

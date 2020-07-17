@@ -26,7 +26,7 @@ public class Asset extends AbstractObject {
     String note;
     Set<Asset> associatedAsset;
     @NotNull(message = "Assigned site for asset is required")
-    String siteId;
+    String officeSiteId;
     String pic;
     @NotNull(message = "Manufacturer's data is required")
     String manufacturerId;
@@ -36,7 +36,7 @@ public class Asset extends AbstractObject {
     LocalDate purchaseDate;
     int warrantyInMonth;
     @NotNull
-    String status;
+    String assetStatusId;
     int ciaC;
     int ciaI;
     int ciaA;

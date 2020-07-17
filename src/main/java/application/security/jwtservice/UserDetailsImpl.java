@@ -2,6 +2,10 @@ package application.security.jwtservice;
 
 import application.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Data
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
@@ -17,15 +22,23 @@ public class UserDetailsImpl implements UserDetails {
     private String email;
 
     @JsonIgnore
+    @Getter(AccessLevel.NONE)
     private String password;
+
+    private String firstName;
+    private String surName;
+    private String department;
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(String id, String email, String password,
+    public UserDetailsImpl(String id, String email, String password, String firstName, String surName, String department,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.firstName = firstName;
+        this.surName = surName;
+        this.department = department;
         this.authorities = authorities;
     }
 
@@ -38,11 +51,10 @@ public class UserDetailsImpl implements UserDetails {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
+                user.getFirstName(),
+                user.getSurName(),
+                user.getDepartment(),
                 authorities);
-    }
-
-    public String getId() {
-        return id;
     }
 
     @Override
@@ -79,4 +91,6 @@ public class UserDetailsImpl implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

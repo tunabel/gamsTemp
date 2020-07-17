@@ -2,6 +2,7 @@ package application.controller;
 
 import application.model.entity.Asset;
 import application.model.request.AssetAddRequest;
+import application.model.response.AssetGetResponse;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,11 +25,11 @@ public class AssetController {
 
     @GetMapping(value = "/")
     public ResponseEntity<Map<String, Object>> getAllAsset() {
-        List<Asset> assetList = assetService.findAll();
+        List<AssetGetResponse> responseList = assetService.findAll();
 
         Map<String, Object> response = new HashMap<>();
-        response.put("assets", assetList);
-        response.put("totalNumberOfRecords", assetList.size());
+        response.put("assets", responseList);
+        response.put("totalNumberOfRecords", responseList.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -59,6 +60,15 @@ public class AssetController {
         response.put("message", "New asset list inserted.");
         response.put("count", assetList.size());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping(value = "/asset/{id}")
+    public ResponseEntity<Map<String, Object>> insertAsset(@PathVariable String id) {
+        AssetGetResponse asset = assetService.findById(id);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("asset", asset);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

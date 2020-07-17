@@ -27,6 +27,9 @@ public class DatasetController extends BaseController {
     @Autowired
     OfficeSiteRepository officeSiteRepository;
 
+    @Autowired
+    AssetStatusRepository assetStatusRepository;
+
 
     @GetMapping(value = "/assets/types/")
     public List<AssetType> getAllAssetType() {
@@ -51,5 +54,10 @@ public class DatasetController extends BaseController {
     @GetMapping(value = "/offices/")
     public List<OfficeSite> getAllOfficeSite() {
         return officeSiteRepository.findAll();
+    }
+
+    @GetMapping(value = "/assets/status/")
+    public List<AssetStatus> getAllAssetStatus() {
+        return assetStatusRepository.findAll();
     }
 }

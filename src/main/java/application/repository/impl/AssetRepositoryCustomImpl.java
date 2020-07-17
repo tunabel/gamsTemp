@@ -18,5 +18,17 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
         Criteria criteria = Criteria.where("assetGroupId").is(groupId);
 
         return (int) mongoTemplate.count(Query.query(criteria), Asset.class);
+
+
+    }
+
+    @Override
+    public int getHighestIdByAssetGroup(String groupId) {
+        return 0;
+    }
+
+    @Override
+    public int getHighestId() {
+        return 0;
     }
 }

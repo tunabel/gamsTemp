@@ -42,6 +42,6 @@ public class AuthController extends BaseController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles));
+        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getEmail(), userDetails.getFirstName(), userDetails.getSurName(), userDetails.getDepartment(), roles));
     }
 }
