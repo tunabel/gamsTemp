@@ -24,7 +24,7 @@ public class Asset extends AbstractObject {
     String name;
     String unit;
     String note;
-    Set<Asset> associatedAsset;
+    Set<String> associatedAsset;
     @NotNull(message = "Assigned site for asset is required")
     String officeSiteId;
     String pic;

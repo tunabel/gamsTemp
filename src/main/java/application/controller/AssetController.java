@@ -23,6 +23,9 @@ public class AssetController {
     @Autowired
     AssetService assetService;
 
+    //Check access asset list per user right.
+    //get role from token > if EMP: only get asset with same owner / pic id. DUL : asset with owner id in the same department.
+    // GRL: asset with owner id in specific departments. Group 1 = DU 1 & 11, Group 2 = ...
     @GetMapping(value = "/")
     public ResponseEntity<Map<String, Object>> getAllAsset() {
         List<AssetGetResponse> responseList = assetService.findAll();

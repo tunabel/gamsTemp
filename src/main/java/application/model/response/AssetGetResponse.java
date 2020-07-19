@@ -21,7 +21,7 @@ public class AssetGetResponse extends AbstractObject {
     String name;
     String unit;
     String note;
-    Set<Asset> associatedAssetCode;
+    Set<String> associatedAssetCode;
     String officeSite;
     String pic;
     String manufacturer;

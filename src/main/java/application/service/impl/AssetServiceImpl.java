@@ -135,9 +135,8 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public List<AssetGetResponse> findAll() {
-        List<Asset> assetList = assetRepository.findAll();
+        return assetRepository.findAllAssetGetResponse();
 
-        return mapAssetListToResponseList(assetList);
     }
 
     @Override
@@ -149,6 +148,8 @@ public class AssetServiceImpl implements AssetService {
 
         asset.setAssetTypeId(request.getAssetTypeId());
         asset.setAssetGroupId(request.getAssetGroupId());
+        asset.setAssociatedAsset(null);
+        asset.setPic(null);
         asset.setName(request.getName());
         asset.setUnit(request.getUnit());
         asset.setNote(request.getNote());
@@ -179,6 +180,18 @@ public class AssetServiceImpl implements AssetService {
         } else {
             throw new BadConnectionException("Bad asset group id");
         }
+
+        asset.setCiaC(0);
+        asset.setCiaI(0);
+        asset.setCiaA(0);
+        asset.setCiaSum(0);
+        asset.setCiaImportance(null);
+        asset.setCiaNote(null);
+        asset.setOwner(null);
+        asset.setAssignDateStart(null);
+        asset.setAssignDateEnd(null);
+        asset.setOverdue(false);
+
         assetRepository.insert(asset);
 
         return asset;
