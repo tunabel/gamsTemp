@@ -1,15 +1,15 @@
 package application.controller;
 
 import application.model.entity.Asset;
-import application.model.request.AssetAddRequest;
-import application.model.request.AssociableAssetRequest;
-import application.model.response.AssetGetAllResponse;
-import application.model.response.AssetGetResponse;
+import application.model.requestdto.AssetCreateRequestDto;
+import application.model.responsedto.AssetGetAllResponseDtoDto;
+import application.model.responsedto.AssetGetResponseDto;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,7 +30,8 @@ public class AssetController {
     // GRL: asset with owner id in specific departments. Group 1 = DU 1 & 11, Group 2 = ...
     @GetMapping(value = "/")
     public ResponseEntity<Map<String, Object>> getAllAsset() {
-        List<AssetGetAllResponse> responseList = assetService.findAll();
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
+        List<AssetGetAllResponseDtoDto> responseList = assetService.findAll();
 
         Map<String, Object> response = new HashMap<>();
         response.put("assets", responseList);
@@ -40,7 +41,7 @@ public class AssetController {
 
     @PostMapping(value = "/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> insertAsset(@Valid @RequestBody AssetAddRequest request) {
+    public ResponseEntity<Map<String, Object>> insertAsset(@Valid @RequestBody AssetCreateRequestDto request) {
         Asset asset = assetService.insert(request);
 
         Map<String, Object> response = new HashMap<>();
@@ -52,11 +53,11 @@ public class AssetController {
 
     @PostMapping(value = "/import/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> insertAssetList(@Valid @RequestBody List<AssetAddRequest> request) {
+    public ResponseEntity<Map<String, Object>> insertAssetList(@Valid @RequestBody List<AssetCreateRequestDto> request) {
 
         List<Asset> assetList = new ArrayList<>();
 
-        for (AssetAddRequest asset : request) {
+        for (AssetCreateRequestDto asset : request) {
             Asset newAsset = assetService.insert(asset);
             assetList.add(newAsset);
         }
@@ -69,7 +70,7 @@ public class AssetController {
 
     @GetMapping(value = "/asset/{id}")
     public ResponseEntity<Map<String, Object>> insertAsset(@PathVariable String id) {
-        AssetGetResponse asset = assetService.findById(id);
+        AssetGetResponseDto asset = assetService.findById(id);
 
         Map<String, Object> response = new HashMap<>();
         response.put("asset", asset);
@@ -77,10 +78,10 @@ public class AssetController {
     }
 
     @GetMapping(value = "/asset/assoc")
-    public ResponseEntity<Map<String, Object>> getAssociableAsset(@RequestBody AssociableAssetRequest request) {
+    public ResponseEntity<Map<String, Object>> getAssociableAsset(@RequestParam(required=false) String request) {
 
         Map<String, Object> response = new HashMap<>();
-        response.put("results", assetService.findAssocByName(request.getName()));
+        response.put("results", assetService.findAssocByName(request));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

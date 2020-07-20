@@ -1,4 +1,4 @@
-package application.model.request;
+package application.model.requestdto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
-public class LoginRequest {
+public class LoginRequestDto {
     @NotBlank
     private String email;
 

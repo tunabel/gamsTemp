@@ -1,10 +1,10 @@
-package application.model.response;
+package application.model.responsedto;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
 @Data
-public class AssociatedAssetGetResponse extends AssetGetResponse {
+public class AssociatedAssetGetResponseDto extends AssetGetResponseDto {
     @Id
     String id;
     String name;

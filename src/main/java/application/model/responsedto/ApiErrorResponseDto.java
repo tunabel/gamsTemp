@@ -1,4 +1,4 @@
-package application.model.response;
+package application.model.responsedto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiErrorResponse {
+public class ApiErrorResponseDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     LocalDateTime timestamp = LocalDateTime.now();
@@ -15,7 +15,7 @@ public class ApiErrorResponse {
     String errorMessage;
     List<Violation> errors = new ArrayList<>();
 
-    public ApiErrorResponse(String errorCode, String errorMessage) {
+    public ApiErrorResponseDto(String errorCode, String errorMessage) {
         super();
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;

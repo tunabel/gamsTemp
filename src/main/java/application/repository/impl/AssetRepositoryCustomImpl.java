@@ -1,10 +1,10 @@
 package application.repository.impl;
 
 import application.model.entity.Asset;
-import application.model.response.AssetGetAllResponse;
-import application.model.response.AssetGetOneResponse;
-import application.model.response.AssetGetResponse;
-import application.model.response.AssociatedAssetGetResponse;
+import application.model.responsedto.AssetGetAllResponseDtoDto;
+import application.model.responsedto.AssetGetOneResponseDtoDto;
+import application.model.responsedto.AssetGetResponseDto;
+import application.model.responsedto.AssociatedAssetGetResponseDto;
 import application.repository.AssetRepositoryCustom;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
@@ -42,7 +41,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
     }
 
     @Override
-    public List<? extends AssetGetResponse> findAllAssetGetResponse() {
+    public List<? extends AssetGetResponseDto> findAllAssetGetResponse() {
         List<AggregationOperation> aggregationOperationList = createBaseAssetAggregationList();
         ProjectionOperation projectionOperation = Aggregation.project(
                 "assetCode",
@@ -62,11 +61,11 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperationList);
 
-        AggregationResults<AssetGetAllResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetAllResponse.class);
+        AggregationResults<AssetGetAllResponseDtoDto> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetAllResponseDtoDto.class);
 
-        List<AssetGetAllResponse> responses = new ArrayList<>();
+        List<AssetGetAllResponseDtoDto> responses = new ArrayList<>();
 
-        for (AssetGetAllResponse result : results) {
+        for (AssetGetAllResponseDtoDto result : results) {
             responses.add(result);
         }
         return responses;
@@ -149,7 +148,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
     }
 
     @Override
-    public AssetGetOneResponse findAssetGetResponseById(String id) {
+    public AssetGetOneResponseDtoDto findAssetGetResponseById(String id) {
 
         MatchOperation match1 = Aggregation.match(Criteria.where("_id").is(id));
         List<AggregationOperation> aggregationList = createBaseAssetAggregationList();
@@ -186,17 +185,17 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
         aggregationList.add(0, match1);
         aggregationList.add(projectionOperation);
         Aggregation aggregation = Aggregation.newAggregation(aggregationList);
-        AggregationResults<AssetGetOneResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetOneResponse.class);
+        AggregationResults<AssetGetOneResponseDtoDto> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetOneResponseDtoDto.class);
 
         return results.getUniqueMappedResult();
     }
 
     @Override
-    public List<AssociatedAssetGetResponse> findAssocByName(String req) {
+    public List<AssociatedAssetGetResponseDto> findAssocByName(String req) {
 
         Criteria criteria = new Criteria().andOperator(
                 Criteria.where("assetGroupId").is("28"),
-                Criteria.where("name").regex(req, "i")
+                Criteria.where("name").regex("^"+req, "i")
 //                ,Criteria.where("assetStatus").is("0")
         );
 
@@ -205,7 +204,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 "name", "assetCode"
         );
 
-        AggregationResults<AssociatedAssetGetResponse> results = mongoTemplate.aggregate(Aggregation.newAggregation(matchOperation, projectionOperation), "assets", AssociatedAssetGetResponse.class);
+        AggregationResults<AssociatedAssetGetResponseDto> results = mongoTemplate.aggregate(Aggregation.newAggregation(matchOperation, projectionOperation), "assets", AssociatedAssetGetResponseDto.class);
 
         return results.getMappedResults();
 

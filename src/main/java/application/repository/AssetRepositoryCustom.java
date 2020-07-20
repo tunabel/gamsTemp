@@ -1,7 +1,7 @@
 package application.repository;
 
-import application.model.response.AssetGetResponse;
-import application.model.response.AssociatedAssetGetResponse;
+import application.model.responsedto.AssetGetResponseDto;
+import application.model.responsedto.AssociatedAssetGetResponseDto;
 
 import java.util.List;
 
@@ -13,10 +13,10 @@ public interface AssetRepositoryCustom {
 
     int getHighestId();
 
-    List<? extends AssetGetResponse> findAllAssetGetResponse();
+    List<? extends AssetGetResponseDto> findAllAssetGetResponse();
 
-    AssetGetResponse findAssetGetResponseById(String id);
+    AssetGetResponseDto findAssetGetResponseById(String id);
 
-    List<AssociatedAssetGetResponse> findAssocByName(String name);
+    List<AssociatedAssetGetResponseDto> findAssocByName(String name);
 
 }

@@ -1,4 +1,4 @@
-package application.model.response;
+package application.model.responsedto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +9,7 @@ import org.springframework.data.annotation.Id;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetGetAllResponse extends AssetGetResponse {
+public class AssetGetAllResponseDtoDto extends AssetGetResponseDto {
     @Id
     String id;
     String assetCode;

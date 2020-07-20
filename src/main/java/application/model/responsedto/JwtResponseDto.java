@@ -1,12 +1,11 @@
-package application.model.response;
+package application.model.responsedto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class JwtResponse {
+public class JwtResponseDto {
 
     private String token;
     private String type = "Bearer";
@@ -16,7 +15,7 @@ public class JwtResponse {
     private String department;
     private List<String> roles;
 
-    public JwtResponse(String token, String id, String email, String firstName, String surName, String department, List<String> roles) {
+    public JwtResponseDto(String token, String id, String email, String firstName, String surName, String department, List<String> roles) {
         this.token = token;
         this.id = id;
         this.email = email;

@@ -1,8 +1,8 @@
-package application.model.request;
+package application.model.requestdto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PageReq {
+public class PaginationRequestDto {
 
     @JsonProperty("currentpage")
     private int currentPage = 0;

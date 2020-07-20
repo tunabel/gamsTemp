@@ -4,9 +4,9 @@ import application.controller.exception.*;
 import application.model.common.UserField;
 import application.model.entity.Role;
 import application.model.entity.User;
-import application.model.request.PageReq;
-import application.model.request.UpsertRequest;
-import application.model.response.UserResponse;
+import application.model.requestdto.PaginationRequestDto;
+import application.model.requestdto.UpsertRequestDto;
+import application.model.responsedto.UserResponseDto;
 import application.repository.RoleRepository;
 import application.repository.UserRepository;
 import application.service.UserService;
@@ -37,8 +37,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder encoder;
 
-    UserResponse createUserResponse(User user) {
-        return new UserResponse(
+    UserResponseDto createUserResponse(User user) {
+        return new UserResponseDto(
                 user.getId(),
                 user.getFirstName(),
                 user.getSurName(),
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse findById(String id) {
+    public UserResponseDto findById(String id) {
         if (!isConnectionOK()) {
             throw new BadConnectionException(CONNECTION_ERROR);
         }
@@ -71,14 +71,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserResponse> findActiveByQueryWithPagination(String input, PageReq pageReq) {
+    public Page<UserResponseDto> findActiveByQueryWithPagination(String input, PaginationRequestDto paginationRequestDto) {
         if (!isConnectionOK()) {
             throw new BadConnectionException(CONNECTION_ERROR);
         }
-        if (pageReq.getCurrentPage() <= 0) {
+        if (paginationRequestDto.getCurrentPage() <= 0) {
             throw new PageRequestInvalidException("Page index must not be less than zero");
         }
-        Pageable pageable = PageRequest.of(pageReq.getCurrentPage() - 1, pageReq.getNumberRecord());
+        Pageable pageable = PageRequest.of(paginationRequestDto.getCurrentPage() - 1, paginationRequestDto.getNumberRecord());
         List<User> userList;
 
         if (input == null || input.isEmpty()) {
@@ -110,16 +110,16 @@ public class UserServiceImpl implements UserService {
             throw new UserListEmptyException("User List is empty");
         }
 
-        List<UserResponse> userResponseList = new ArrayList<>();
+        List<UserResponseDto> userResponseDtoList = new ArrayList<>();
         for (User user : pageList) {
-            userResponseList.add(createUserResponse(user));
+            userResponseDtoList.add(createUserResponse(user));
         }
 
-        return new PageImpl<UserResponse>(userResponseList, pageable, fetchedListSize);
+        return new PageImpl<UserResponseDto>(userResponseDtoList, pageable, fetchedListSize);
     }
 
     @Override
-    public List<UserResponse> findActiveByQuery(String input) {
+    public List<UserResponseDto> findActiveByQuery(String input) {
 
         if (!isConnectionOK()) {
             throw new BadConnectionException(CONNECTION_ERROR);
@@ -136,13 +136,13 @@ public class UserServiceImpl implements UserService {
             throw new UserListEmptyException("User List is empty");
         }
 
-        List<UserResponse> userResponseList = new ArrayList<>();
+        List<UserResponseDto> userResponseDtoList = new ArrayList<>();
 
         for (User user : userList) {
-            userResponseList.add(createUserResponse(user));
+            userResponseDtoList.add(createUserResponse(user));
         }
 
-        return userResponseList;
+        return userResponseDtoList;
     }
 
     @Override
@@ -170,7 +170,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse upsert(UpsertRequest request) {
+    public UserResponseDto upsert(UpsertRequestDto request) {
 
         if (!isConnectionOK()) {
             throw new BadConnectionException(CONNECTION_ERROR);
@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
         if (request.getId() != null) {
             user.setId(request.getId());
 
-            UserResponse userFoundById = findById(request.getId());
+            UserResponseDto userFoundById = findById(request.getId());
 
             if (userFoundById == null) {
                 throw new ItemNotFoundException(ID_NOT_FOUND + request.getId());

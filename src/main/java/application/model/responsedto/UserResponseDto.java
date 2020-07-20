@@ -1,4 +1,4 @@
-package application.model.response;
+package application.model.responsedto;
 
 import application.model.entity.Role;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
+public class UserResponseDto {
     private String id;
     private String firstName;
     private String surName;

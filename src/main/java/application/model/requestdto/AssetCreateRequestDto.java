@@ -1,4 +1,4 @@
-package application.model.request;
+package application.model.requestdto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetAddRequest {
+public class AssetCreateRequestDto {
 
     @NotNull(message = "Asset Type is required")
     String assetTypeId;

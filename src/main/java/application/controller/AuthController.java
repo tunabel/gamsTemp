@@ -1,8 +1,8 @@
 package application.controller;
 
 
-import application.model.request.LoginRequest;
-import application.model.response.JwtResponse;
+import application.model.requestdto.LoginRequestDto;
+import application.model.responsedto.JwtResponseDto;
 import application.security.jwt.JwtUtils;
 import application.security.jwtservice.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +30,9 @@ public class AuthController extends BaseController {
     JwtUtils jwtUtils;
 
     @PostMapping(value = "/signin")
-    public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtResponseDto> authenticateUser(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -42,6 +42,6 @@ public class AuthController extends BaseController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getEmail(), userDetails.getFirstName(), userDetails.getSurName(), userDetails.getDepartment(), roles));
+        return ResponseEntity.ok(new JwtResponseDto(jwt, userDetails.getId(), userDetails.getEmail(), userDetails.getFirstName(), userDetails.getSurName(), userDetails.getDepartment(), roles));
     }
 }

@@ -1,4 +1,4 @@
-package application.model.response;
+package application.model.responsedto;
 
 public class Violation {
     private final String fieldName;

@@ -1,4 +1,4 @@
-package application.model.response;
+package application.model.responsedto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetGetOneResponse extends AssetGetResponse {
+public class AssetGetOneResponseDtoDto extends AssetGetResponseDto {
     @Id
     String id;
     String assetCode;

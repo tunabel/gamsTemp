@@ -1,4 +1,4 @@
-package application.model.request;
+package application.model.requestdto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class UpsertRequest {
+public class UpsertRequestDto {
 
     private String id;
     @NotBlank(message = "Firstname is required")

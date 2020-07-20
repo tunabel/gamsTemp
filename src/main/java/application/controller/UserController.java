@@ -1,8 +1,8 @@
 package application.controller;
 
-import application.model.request.PageReq;
-import application.model.request.UpsertRequest;
-import application.model.response.UserResponse;
+import application.model.requestdto.PaginationRequestDto;
+import application.model.requestdto.UpsertRequestDto;
+import application.model.responsedto.UserResponseDto;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,10 +25,10 @@ public class UserController extends BaseController {
 
     @GetMapping(value = "/pages/", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> findActiveWithPagination(@RequestBody PageReq pageReq, @RequestParam(required = false) String search) {
-        Page<UserResponse> userPage = userService.findActiveByQueryWithPagination(search, pageReq);
+    public ResponseEntity<Map<String, Object>> findActiveWithPagination(@RequestBody PaginationRequestDto paginationRequestDto, @RequestParam(required = false) String search) {
+        Page<UserResponseDto> userPage = userService.findActiveByQueryWithPagination(search, paginationRequestDto);
 
-        List<UserResponse> userList = userPage.getContent();
+        List<UserResponseDto> userList = userPage.getContent();
         Map<String, Object> response = new HashMap<>();
         response.put("users", userList);
         response.put("currentPage", userPage.getNumber() + 1);
@@ -42,7 +42,7 @@ public class UserController extends BaseController {
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
     public ResponseEntity<Map<String, Object>> findActive(@RequestParam(required = false) String search) {
-        List<UserResponse> userList = userService.findActiveByQuery(search);
+        List<UserResponseDto> userList = userService.findActiveByQuery(search);
 
         Map<String, Object> response = new HashMap<>();
         response.put("users", userList);
@@ -53,15 +53,15 @@ public class UserController extends BaseController {
     @GetMapping(value = "/{id}")
     @PreAuthorize("hasRole('DUL') or hasRole('GRL') or hasRole('ADM') or hasRole('SEP') or hasRole('BOD') or hasRole('SAD')")
     public ResponseEntity<Object> findById(@PathVariable String id) {
-        UserResponse user = userService.findById(id);
+        UserResponseDto user = userService.findById(id);
 
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping(value = "/")
 //    @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> insert(@RequestBody @Valid UpsertRequest request) {
-        UserResponse user = userService.upsert(request);
+    public ResponseEntity<Map<String, Object>> insert(@RequestBody @Valid UpsertRequestDto request) {
+        UserResponseDto user = userService.upsert(request);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "New user created.");
@@ -72,8 +72,8 @@ public class UserController extends BaseController {
 
     @PutMapping(value = "/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> update(@RequestBody @Valid UpsertRequest request) {
-        UserResponse updatedUser = userService.upsert(request);
+    public ResponseEntity<Map<String, Object>> update(@RequestBody @Valid UpsertRequestDto request) {
+        UserResponseDto updatedUser = userService.upsert(request);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Updated successfully user: " + updatedUser.getFirstName() + " " + updatedUser.getSurName());

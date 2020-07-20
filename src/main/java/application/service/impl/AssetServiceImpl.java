@@ -3,10 +3,10 @@ package application.service.impl;
 import application.controller.exception.BadConnectionException;
 import application.controller.exception.ItemNotFoundException;
 import application.model.entity.*;
-import application.model.request.AssetAddRequest;
-import application.model.response.AssetGetAllResponse;
-import application.model.response.AssetGetOneResponse;
-import application.model.response.AssociatedAssetGetResponse;
+import application.model.requestdto.AssetCreateRequestDto;
+import application.model.responsedto.AssetGetAllResponseDtoDto;
+import application.model.responsedto.AssetGetOneResponseDtoDto;
+import application.model.responsedto.AssociatedAssetGetResponseDto;
 import application.repository.*;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +41,13 @@ public class AssetServiceImpl implements AssetService {
     AssetStatusRepository assetStatusRepository;
 
     @Override
-    public List<AssetGetAllResponse> findAll() {
-        return (List<AssetGetAllResponse>) assetRepository.findAllAssetGetResponse();
+    public List<AssetGetAllResponseDtoDto> findAll() {
+        return (List<AssetGetAllResponseDtoDto>) assetRepository.findAllAssetGetResponse();
 
     }
 
     @Override
-    public Asset insert(AssetAddRequest request) {
+    public Asset insert(AssetCreateRequestDto request) {
         Asset asset = new Asset();
 
         //SET ID AS AUTO INCREMENTING -- NEED TO FIND HIGHEST NUMBER, NOT TOTAL COUNT
@@ -105,17 +105,17 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public AssetGetOneResponse findById(String id) {
+    public AssetGetOneResponseDtoDto findById(String id) {
 
         if (assetRepository.existsById(id)) {
-            return (AssetGetOneResponse) assetRepository.findAssetGetResponseById(id);
+            return (AssetGetOneResponseDtoDto) assetRepository.findAssetGetResponseById(id);
         } else {
             throw new ItemNotFoundException("Submitted Asset Id not found");
         }
     }
 
     @Override
-    public List<AssociatedAssetGetResponse> findAssocByName(String name) {
+    public List<AssociatedAssetGetResponseDto> findAssocByName(String name) {
 
         return assetRepository.findAssocByName(name);
     }

@@ -1,20 +1,20 @@
 package application.service;
 
 import application.model.entity.Asset;
-import application.model.request.AssetAddRequest;
-import application.model.response.AssetGetAllResponse;
-import application.model.response.AssetGetOneResponse;
-import application.model.response.AssociatedAssetGetResponse;
+import application.model.requestdto.AssetCreateRequestDto;
+import application.model.responsedto.AssetGetAllResponseDtoDto;
+import application.model.responsedto.AssetGetOneResponseDtoDto;
+import application.model.responsedto.AssociatedAssetGetResponseDto;
 
 import java.util.List;
 
 public interface AssetService {
-    List<AssetGetAllResponse> findAll();
+    List<AssetGetAllResponseDtoDto> findAll();
 
-    Asset insert(AssetAddRequest request);
+    Asset insert(AssetCreateRequestDto request);
 
-    AssetGetOneResponse findById(String id);
+    AssetGetOneResponseDtoDto findById(String id);
 
-    List<AssociatedAssetGetResponse> findAssocByName(String name);
+    List<AssociatedAssetGetResponseDto> findAssocByName(String name);
 
 }
