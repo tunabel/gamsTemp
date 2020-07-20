@@ -41,8 +41,8 @@ public class AssetController {
 
     @PostMapping(value = "/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> insertAsset(@Valid @RequestBody AssetCreateRequestDto request) {
-        Asset asset = assetService.insert(request);
+    public ResponseEntity<Map<String, Object>> insertAsset(@Valid @RequestBody AssetCreateRequestDto search) {
+        Asset asset = assetService.insert(search);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "New asset created.");
@@ -78,10 +78,10 @@ public class AssetController {
     }
 
     @GetMapping(value = "/asset/assoc")
-    public ResponseEntity<Map<String, Object>> getAssociableAsset(@RequestParam(required=false) String request) {
+    public ResponseEntity<Map<String, Object>> getAssociableAsset(@RequestParam String search) {
 
         Map<String, Object> response = new HashMap<>();
-        response.put("results", assetService.findAssocByName(request));
+        response.put("results", assetService.findAssocByName(search));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
