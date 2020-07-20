@@ -136,12 +136,12 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 "assignDateEnd",
                 "overdue")
                 .and("$picUser.firstName").as("pic")
-                .and("$assetTypeA.name").as("assetType")
-                .and("$assetGroupA.name").as("assetGroup")
-                .and("$assetStatusA.name").as("assetStatus")
-                .and("$manufacturerA.name").as("manufacturer")
-                .and("$supplierA.name").as("supplier")
-                .and("$officeSiteA.name").as("officeSite");
+                .and("$assetTypeA.value").as("assetType")
+                .and("$assetGroupA.value").as("assetGroup")
+                .and("$assetStatusA.value").as("assetStatus")
+                .and("$manufacturerA.value").as("manufacturer")
+                .and("$supplierA.value").as("supplier")
+                .and("$officeSiteA.value").as("officeSite");
 
         aggregationList.addAll(
                 Arrays.asList(
