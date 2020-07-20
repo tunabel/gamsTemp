@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetGetOneResponseDtoDto extends AssetGetResponseDto {
+public class AssetGetOneResponseDto extends AssetGetResponseDto {
     @Id
     String id;
     String assetCode;

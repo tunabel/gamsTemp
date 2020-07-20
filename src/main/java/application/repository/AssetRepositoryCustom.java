@@ -1,5 +1,6 @@
 package application.repository;
 
+import application.model.entity.Asset;
 import application.model.responsedto.AssetGetResponseDto;
 import application.model.responsedto.AssociatedAssetGetResponseDto;
 
@@ -9,9 +10,7 @@ public interface AssetRepositoryCustom {
 
     int countByAssetGroup(String groupId);
 
-    int getHighestIdByAssetGroup(String groupId);
-
-    int getHighestId();
+    List<Asset> getSimpleListOfId(String id);
 
     List<? extends AssetGetResponseDto> findAllAssetGetResponse();
 

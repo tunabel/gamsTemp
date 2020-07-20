@@ -2,7 +2,8 @@ package application.controller;
 
 import application.model.entity.Asset;
 import application.model.requestdto.AssetCreateRequestDto;
-import application.model.responsedto.AssetGetAllResponseDtoDto;
+import application.model.requestdto.AssetUpdateRequestDto;
+import application.model.responsedto.AssetGetAllResponseDto;
 import application.model.responsedto.AssetGetResponseDto;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,9 @@ public class AssetController {
     //get role from token > if EMP: only get asset with same owner / pic id. DUL : asset with owner id in the same department.
     // GRL: asset with owner id in specific departments. Group 1 = DU 1 & 11, Group 2 = ...
     @GetMapping(value = "/")
-    public ResponseEntity<Map<String, Object>> getAllAsset() {
+    public ResponseEntity<Map<String, Object>> getAll() {
         System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-        List<AssetGetAllResponseDtoDto> responseList = assetService.findAll();
+        List<AssetGetAllResponseDto> responseList = assetService.findAll();
 
         Map<String, Object> response = new HashMap<>();
         response.put("assets", responseList);
@@ -41,8 +42,8 @@ public class AssetController {
 
     @PostMapping(value = "/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> insertAsset(@Valid @RequestBody AssetCreateRequestDto search) {
-        Asset asset = assetService.insert(search);
+    public ResponseEntity<Map<String, Object>> insertOne(@Valid @RequestBody AssetCreateRequestDto dto) {
+        Asset asset = assetService.insert(dto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "New asset created.");
@@ -53,7 +54,7 @@ public class AssetController {
 
     @PostMapping(value = "/import/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
-    public ResponseEntity<Map<String, Object>> insertAssetList(@Valid @RequestBody List<AssetCreateRequestDto> request) {
+    public ResponseEntity<Map<String, Object>> insertList(@Valid @RequestBody List<AssetCreateRequestDto> request) {
 
         List<Asset> assetList = new ArrayList<>();
 
@@ -69,7 +70,7 @@ public class AssetController {
     }
 
     @GetMapping(value = "/asset/{id}")
-    public ResponseEntity<Map<String, Object>> insertAsset(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getById(@PathVariable String id) {
         AssetGetResponseDto asset = assetService.findById(id);
 
         Map<String, Object> response = new HashMap<>();
@@ -78,12 +79,17 @@ public class AssetController {
     }
 
     @GetMapping(value = "/asset/assoc")
-    public ResponseEntity<Map<String, Object>> getAssociableAsset(@RequestParam String search) {
+    public ResponseEntity<Map<String, Object>> getAssociable(@RequestParam String search) {
 
         Map<String, Object> response = new HashMap<>();
         response.put("results", assetService.findAssocByName(search));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/asset/{id}")
+    public ResponseEntity<Map<String, Object>> update(@RequestParam String id, @Valid @RequestBody AssetUpdateRequestDto request) {
+        return null;
     }
 
 }

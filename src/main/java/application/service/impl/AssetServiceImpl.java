@@ -4,8 +4,8 @@ import application.controller.exception.BadConnectionException;
 import application.controller.exception.ItemNotFoundException;
 import application.model.entity.*;
 import application.model.requestdto.AssetCreateRequestDto;
-import application.model.responsedto.AssetGetAllResponseDtoDto;
-import application.model.responsedto.AssetGetOneResponseDtoDto;
+import application.model.responsedto.AssetGetAllResponseDto;
+import application.model.responsedto.AssetGetOneResponseDto;
 import application.model.responsedto.AssociatedAssetGetResponseDto;
 import application.repository.*;
 import application.service.AssetService;
@@ -13,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AssetServiceImpl implements AssetService {
@@ -41,9 +40,20 @@ public class AssetServiceImpl implements AssetService {
     AssetStatusRepository assetStatusRepository;
 
     @Override
-    public List<AssetGetAllResponseDtoDto> findAll() {
-        return (List<AssetGetAllResponseDtoDto>) assetRepository.findAllAssetGetResponse();
+    public List<AssetGetAllResponseDto> findAll() {
+        return (List<AssetGetAllResponseDto>) assetRepository.findAllAssetGetResponse();
+    }
 
+
+    private int createHighestId(String stringId) {
+        List<Asset> assetList = assetRepository.getSimpleListOfId(stringId);
+        int max = 0;
+
+        for(Asset asset:assetList) {
+            int id = Integer.parseInt(asset.getId());
+            max = id > max ? id : max;
+        }
+        return max+1;
     }
 
     @Override
@@ -51,11 +61,11 @@ public class AssetServiceImpl implements AssetService {
         Asset asset = new Asset();
 
         //SET ID AS AUTO INCREMENTING -- NEED TO FIND HIGHEST NUMBER, NOT TOTAL COUNT
-        asset.setId(String.valueOf(assetRepository.count() + 1));
+        asset.setId(String.valueOf(createHighestId(null)));
 
         asset.setAssetTypeId(request.getAssetTypeId());
         asset.setAssetGroupId(request.getAssetGroupId());
-        asset.setAssociatedAsset(null);
+        asset.setAssociatedAsset(new HashSet<>());
         asset.setPic(null);
         asset.setName(request.getName());
         asset.setUnit(request.getUnit());
@@ -81,7 +91,7 @@ public class AssetServiceImpl implements AssetService {
         if (assetGroupOptional.isPresent()) {
             String group = assetGroupOptional.get().getAbbreviation();
 
-            String countGroup = String.format("%03d", assetRepository.countByAssetGroup(request.getAssetGroupId()) + 1);
+            String countGroup = String.format("%03d", createHighestId(request.getAssetGroupId()));
 
             asset.setAssetCode(year.concat(group).concat(countGroup));
         } else {
@@ -105,10 +115,10 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public AssetGetOneResponseDtoDto findById(String id) {
+    public AssetGetOneResponseDto findById(String id) {
 
         if (assetRepository.existsById(id)) {
-            return (AssetGetOneResponseDtoDto) assetRepository.findAssetGetResponseById(id);
+            return (AssetGetOneResponseDto) assetRepository.findAssetGetResponseById(id);
         } else {
             throw new ItemNotFoundException("Submitted Asset Id not found");
         }

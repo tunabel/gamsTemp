@@ -1,8 +1,8 @@
 package application.repository.impl;
 
 import application.model.entity.Asset;
-import application.model.responsedto.AssetGetAllResponseDtoDto;
-import application.model.responsedto.AssetGetOneResponseDtoDto;
+import application.model.responsedto.AssetGetAllResponseDto;
+import application.model.responsedto.AssetGetOneResponseDto;
 import application.model.responsedto.AssetGetResponseDto;
 import application.model.responsedto.AssociatedAssetGetResponseDto;
 import application.repository.AssetRepositoryCustom;
@@ -23,13 +23,19 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
     private MongoTemplate mongoTemplate;
 
     @Override
-    public int getHighestIdByAssetGroup(String groupId) {
-        return 0;
-    }
+    public List<Asset> getSimpleListOfId(String id) {
+        List<AggregationOperation> aggregationList = new ArrayList<>();
+        if (id != null) {
+            Criteria criteria = Criteria.where("assetGroupId").is(id);
+            MatchOperation match1 = Aggregation.match(criteria);
+            aggregationList.add(match1);
+        }
 
-    @Override
-    public int getHighestId() {
-        return 0;
+        ProjectionOperation projection1 = Aggregation.project("_id");
+        aggregationList.add(projection1);
+        Aggregation aggregation = Aggregation.newAggregation(aggregationList);
+        AggregationResults<Asset> results = mongoTemplate.aggregate(aggregation, "assets", Asset.class);
+        return results.getMappedResults();
     }
 
     @Override
@@ -61,11 +67,11 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperationList);
 
-        AggregationResults<AssetGetAllResponseDtoDto> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetAllResponseDtoDto.class);
+        AggregationResults<AssetGetAllResponseDto> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetAllResponseDto.class);
 
-        List<AssetGetAllResponseDtoDto> responses = new ArrayList<>();
+        List<AssetGetAllResponseDto> responses = new ArrayList<>();
 
-        for (AssetGetAllResponseDtoDto result : results) {
+        for (AssetGetAllResponseDto result : results) {
             responses.add(result);
         }
         return responses;
@@ -82,7 +88,6 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 "name",
                 "unit",
                 "note",
-                "associatedAsset",
                 "officeSiteId",
                 "manufacturerId",
                 "supplierId",
@@ -102,6 +107,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 "overdue")
                 .andArrayOf(new Document("$toObjectId", "$pic")).as("picId");
         LookupOperation lookupPic = Aggregation.lookup("users", "picId", "_id", "picUser");
+        LookupOperation lookupAssoc = Aggregation.lookup("assets", "associatedAsset", "assetCode", "associatedAsset");
         LookupOperation lookupType = Aggregation.lookup("assettypes", "assetTypeId", "_id", "assetType");
         LookupOperation lookupGroup = Aggregation.lookup("assetgroups", "assetGroupId", "_id", "assetGroup");
         LookupOperation lookupStatus = Aggregation.lookup("assetstatus", "assetStatusId", "_id", "assetStatus");
@@ -139,7 +145,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
         aggregationList.addAll(
                 Arrays.asList(
                         projection1
-                        , lookupPic, lookupType, lookupGroup, lookupStatus, lookupOffice, lookupManufacturer, lookupSupplier
+                        , lookupPic, lookupAssoc, lookupType, lookupGroup, lookupStatus, lookupOffice, lookupManufacturer, lookupSupplier
                         , projection2
                 )
         );
@@ -148,11 +154,10 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
     }
 
     @Override
-    public AssetGetOneResponseDtoDto findAssetGetResponseById(String id) {
+    public AssetGetOneResponseDto findAssetGetResponseById(String id) {
 
         MatchOperation match1 = Aggregation.match(Criteria.where("_id").is(id));
         List<AggregationOperation> aggregationList = createBaseAssetAggregationList();
-
 
         ProjectionOperation projectionOperation = Aggregation.project(
                 "assetCode",
@@ -185,7 +190,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
         aggregationList.add(0, match1);
         aggregationList.add(projectionOperation);
         Aggregation aggregation = Aggregation.newAggregation(aggregationList);
-        AggregationResults<AssetGetOneResponseDtoDto> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetOneResponseDtoDto.class);
+        AggregationResults<AssetGetOneResponseDto> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetOneResponseDto.class);
 
         return results.getUniqueMappedResult();
     }
@@ -195,7 +200,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
         Criteria criteria = new Criteria().andOperator(
                 Criteria.where("assetGroupId").is("28"),
-                Criteria.where("name").regex("^"+req, "i")
+                Criteria.where("name").regex("^" + req, "i")
 //                ,Criteria.where("assetStatus").is("0")
         );
 
