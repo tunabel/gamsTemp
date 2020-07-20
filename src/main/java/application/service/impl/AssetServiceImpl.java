@@ -4,7 +4,9 @@ import application.controller.exception.BadConnectionException;
 import application.controller.exception.ItemNotFoundException;
 import application.model.entity.*;
 import application.model.request.AssetAddRequest;
-import application.model.response.AssetGetResponse;
+import application.model.response.AssetGetAllResponse;
+import application.model.response.AssetGetOneResponse;
+import application.model.response.AssociatedAssetGetResponse;
 import application.repository.*;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +41,8 @@ public class AssetServiceImpl implements AssetService {
     AssetStatusRepository assetStatusRepository;
 
     @Override
-    public List<AssetGetResponse> findAll() {
-        return assetRepository.findAllAssetGetResponse();
+    public List<AssetGetAllResponse> findAll() {
+        return (List<AssetGetAllResponse>) assetRepository.findAllAssetGetResponse();
 
     }
 
@@ -103,12 +105,18 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public AssetGetResponse findById(String id) {
+    public AssetGetOneResponse findById(String id) {
 
         if (assetRepository.existsById(id)) {
-            return assetRepository.findAssetGetResponseById(id);
+            return (AssetGetOneResponse) assetRepository.findAssetGetResponseById(id);
         } else {
             throw new ItemNotFoundException("Submitted Asset Id not found");
         }
+    }
+
+    @Override
+    public List<AssociatedAssetGetResponse> findAssocByName(String name) {
+
+        return assetRepository.findAssocByName(name);
     }
 }

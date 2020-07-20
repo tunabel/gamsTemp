@@ -1,7 +1,10 @@
 package application.repository.impl;
 
 import application.model.entity.Asset;
+import application.model.response.AssetGetAllResponse;
+import application.model.response.AssetGetOneResponse;
 import application.model.response.AssetGetResponse;
+import application.model.response.AssociatedAssetGetResponse;
 import application.repository.AssetRepositoryCustom;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +12,11 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.web.bind.support.SpringWebConstraintValidatorFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
@@ -39,15 +42,31 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
     }
 
     @Override
-    public List<AssetGetResponse> findAllAssetGetResponse() {
+    public List<? extends AssetGetResponse> findAllAssetGetResponse() {
         List<AggregationOperation> aggregationOperationList = createBaseAssetAggregationList();
+        ProjectionOperation projectionOperation = Aggregation.project(
+                "assetCode",
+                "name",
+                "ciaC",
+                "ciaI",
+                "ciaA",
+                "ciaSum",
+                "owner",
+                "overdue")
+                .and("$assetTypeA.name").as("assetType")
+                .and("$assetGroupA.name").as("assetGroup")
+                .and("$assetStatusA.name").as("assetStatus")
+                .and("$officeSiteA.name").as("officeSite");
+
+        aggregationOperationList.add(projectionOperation);
 
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperationList);
-        AggregationResults<AssetGetResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetResponse.class);
 
-        List<AssetGetResponse> responses = new ArrayList<>();
+        AggregationResults<AssetGetAllResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetAllResponse.class);
 
-        for (AssetGetResponse result : results) {
+        List<AssetGetAllResponse> responses = new ArrayList<>();
+
+        for (AssetGetAllResponse result : results) {
             responses.add(result);
         }
         return responses;
@@ -116,7 +135,27 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$manufacturer", 0))).as("manufacturerA")
                 .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$supplier", 0))).as("supplierA")
                 .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$officeSite", 0))).as("officeSiteA");
-        ProjectionOperation projection3 = Aggregation.project(
+
+
+        aggregationList.addAll(
+                Arrays.asList(
+                        projection1
+                        , lookupPic, lookupType, lookupGroup, lookupStatus, lookupOffice, lookupManufacturer, lookupSupplier
+                        , projection2
+                )
+        );
+
+        return aggregationList;
+    }
+
+    @Override
+    public AssetGetOneResponse findAssetGetResponseById(String id) {
+
+        MatchOperation match1 = Aggregation.match(Criteria.where("_id").is(id));
+        List<AggregationOperation> aggregationList = createBaseAssetAggregationList();
+
+
+        ProjectionOperation projectionOperation = Aggregation.project(
                 "assetCode",
                 "name",
                 "unit",
@@ -134,7 +173,8 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 "owner",
                 "assignDateStart",
                 "assignDateEnd",
-                "overdue")
+                "overdue"
+        )
                 .and("$picUser.firstName").as("pic")
                 .and("$assetTypeA.value").as("assetType")
                 .and("$assetGroupA.value").as("assetGroup")
@@ -143,27 +183,31 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 .and("$supplierA.value").as("supplier")
                 .and("$officeSiteA.value").as("officeSite");
 
-        aggregationList.addAll(
-                Arrays.asList(
-                        projection1
-                        , lookupPic, lookupType, lookupGroup, lookupStatus, lookupOffice, lookupManufacturer, lookupSupplier
-                        , projection2
-                        , projection3
-                )
-        );
+        aggregationList.add(0, match1);
+        aggregationList.add(projectionOperation);
+        Aggregation aggregation = Aggregation.newAggregation(aggregationList);
+        AggregationResults<AssetGetOneResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetOneResponse.class);
 
-        return aggregationList;
+        return results.getUniqueMappedResult();
     }
 
     @Override
-    public AssetGetResponse findAssetGetResponseById(String id) {
+    public List<AssociatedAssetGetResponse> findAssocByName(String req) {
 
-        MatchOperation match1 = Aggregation.match(Criteria.where("_id").is(id));
-        List<AggregationOperation> aggregationList = createBaseAssetAggregationList();
-        aggregationList.add(0,match1);
-        Aggregation aggregation = Aggregation.newAggregation(aggregationList);
-        AggregationResults<AssetGetResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetResponse.class);
+        Criteria criteria = new Criteria().andOperator(
+                Criteria.where("assetGroupId").is("28"),
+                Criteria.where("name").regex(req, "i")
+//                ,Criteria.where("assetStatus").is("0")
+        );
 
-        return results.getUniqueMappedResult();
+        MatchOperation matchOperation = Aggregation.match(criteria);
+        ProjectionOperation projectionOperation = Aggregation.project(
+                "name", "assetCode"
+        );
+
+        AggregationResults<AssociatedAssetGetResponse> results = mongoTemplate.aggregate(Aggregation.newAggregation(matchOperation, projectionOperation), "assets", AssociatedAssetGetResponse.class);
+
+        return results.getMappedResults();
+
     }
 }

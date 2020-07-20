@@ -2,6 +2,8 @@ package application.controller;
 
 import application.model.entity.Asset;
 import application.model.request.AssetAddRequest;
+import application.model.request.AssociableAssetRequest;
+import application.model.response.AssetGetAllResponse;
 import application.model.response.AssetGetResponse;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,7 @@ public class AssetController {
     // GRL: asset with owner id in specific departments. Group 1 = DU 1 & 11, Group 2 = ...
     @GetMapping(value = "/")
     public ResponseEntity<Map<String, Object>> getAllAsset() {
-        List<AssetGetResponse> responseList = assetService.findAll();
+        List<AssetGetAllResponse> responseList = assetService.findAll();
 
         Map<String, Object> response = new HashMap<>();
         response.put("assets", responseList);
@@ -54,9 +56,9 @@ public class AssetController {
 
         List<Asset> assetList = new ArrayList<>();
 
-        for (AssetAddRequest asset: request) {
-         Asset newAsset = assetService.insert(asset);
-         assetList.add(newAsset);
+        for (AssetAddRequest asset : request) {
+            Asset newAsset = assetService.insert(asset);
+            assetList.add(newAsset);
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -71,6 +73,15 @@ public class AssetController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("asset", asset);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/asset/assoc")
+    public ResponseEntity<Map<String, Object>> getAssociableAsset(@RequestBody AssociableAssetRequest request) {
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("results", assetService.findAssocByName(request.getName()));
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

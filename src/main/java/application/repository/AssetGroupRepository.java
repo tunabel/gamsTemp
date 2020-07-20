@@ -8,4 +8,6 @@ import java.util.List;
 public interface AssetGroupRepository extends MongoRepository<AssetGroup, String> {
 
     List<AssetGroup> findAllByAssetType(int type);
+
+    List<AssetGroup> findAllByCanBeAssociated(boolean canBeAssociated);
 }
