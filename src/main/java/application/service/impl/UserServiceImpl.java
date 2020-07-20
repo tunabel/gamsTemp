@@ -26,7 +26,7 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
 
     private static final String CONNECTION_ERROR = "Connection error";
-    private static final String ID_NOT_FOUND = "Submitted id not found: ";
+    private static final String ID_NOT_FOUND = "Submitted User Id not found: ";
 
     @Autowired
     private UserRepository userRepository;
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = userRepository.findByFieldWithFixedValue("id", id);
 
         if (userList.isEmpty()) {
-            throw new UserNotFoundException(ID_NOT_FOUND + id);
+            throw new ItemNotFoundException(ID_NOT_FOUND + id);
         }
 
         return createUserResponse(userList.get(0));
@@ -184,7 +184,7 @@ public class UserServiceImpl implements UserService {
             UserResponse userFoundById = findById(request.getId());
 
             if (userFoundById == null) {
-                throw new UserNotFoundException(ID_NOT_FOUND + request.getId());
+                throw new ItemNotFoundException(ID_NOT_FOUND + request.getId());
             }
 
             List<User> userListFoundByEmail = findByEmail(request.getEmail());
@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService {
         List<User> userList = userRepository.findByFieldWithFixedValue("id", id);
 
         if (userList.isEmpty()) {
-            throw new UserNotFoundException(ID_NOT_FOUND + id);
+            throw new ItemNotFoundException(ID_NOT_FOUND + id);
         }
         User user = userList.get(0);
         user.setActive(false);

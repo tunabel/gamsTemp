@@ -43,10 +43,10 @@ public class UserRestControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(ItemNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    public ResponseEntity<ApiErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
-        ApiErrorResponse error = new ApiErrorResponse("USER_NOT_FOUND", ex.getMessage());
+    public ResponseEntity<ApiErrorResponse> handleItemNotFoundException(ItemNotFoundException ex) {
+        ApiErrorResponse error = new ApiErrorResponse("ID_NOT_FOUND", ex.getMessage());
         error.setStatus(HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }

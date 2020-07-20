@@ -1,6 +1,7 @@
 package application.service.impl;
 
 import application.controller.exception.BadConnectionException;
+import application.controller.exception.ItemNotFoundException;
 import application.model.entity.*;
 import application.model.request.AssetAddRequest;
 import application.model.response.AssetGetResponse;
@@ -10,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class AssetServiceImpl implements AssetService {
@@ -38,100 +37,6 @@ public class AssetServiceImpl implements AssetService {
 
     @Autowired
     AssetStatusRepository assetStatusRepository;
-
-    public AssetGetResponse mapAssetToResponse(Asset asset, AssetType assetType, AssetGroup assetGroup,
-                                               OfficeSite officeSite, Manufacturer manufacturer, Supplier supplier, AssetStatus assetStatus) {
-
-
-        return new AssetGetResponse(
-                asset.getId(),
-                asset.getAssetCode(),
-                assetType.getName(),
-                assetGroup.getName(),
-                asset.getName(),
-                asset.getUnit(),
-                asset.getNote(),
-                asset.getAssociatedAsset(),
-                officeSite.getName(),
-                asset.getPic(),
-                manufacturer.getName(),
-                supplier.getName(),
-                asset.getPrice(),
-                asset.getPurchaseDate(),
-                asset.getWarrantyInMonth(),
-                assetStatus.getName(),
-                asset.getCiaC(),
-                asset.getCiaI(),
-                asset.getCiaA(),
-                asset.getCiaSum(),
-                asset.getCiaImportance(),
-                asset.getCiaNote(),
-                asset.getOwner(),
-                asset.getAssignDateStart(),
-                asset.getAssignDateEnd(),
-                asset.isOverdue()
-        );
-    }
-
-    public AbstractObject getNameFromDatasetById(List<? extends AbstractObject> dataset, String inputId) {
-
-        return dataset.stream().filter(obj -> inputId.equalsIgnoreCase(obj.getId()))
-                .collect(Collectors.toList())
-                .get(0);
-    }
-
-    public List<AssetGetResponse> mapAssetListToResponseList(List<Asset> assetList) {
-
-        List<AssetType> assetTypeList = assetTypeRepository.findAll();
-        List<AssetGroup> assetGroupList = assetGroupRepository.findAll();
-        List<Manufacturer> manufacturerList = manufacturerRepository.findAll();
-        List<Supplier> supplierList = supplierRepository.findAll();
-        List<OfficeSite> officeSiteList = officeSiteRepository.findAll();
-        List<AssetStatus> assetStatusList = assetStatusRepository.findAll();
-
-        List<AssetGetResponse> responseList = new ArrayList<>();
-
-        for (Asset asset : assetList) {
-            AssetType assetType = (AssetType) getNameFromDatasetById(assetTypeList, asset.getAssetTypeId());
-            AssetGroup assetGroup = (AssetGroup) getNameFromDatasetById(assetGroupList, asset.getAssetGroupId());
-            Manufacturer manufacturer = (Manufacturer) getNameFromDatasetById(manufacturerList, asset.getManufacturerId());
-            Supplier supplier = (Supplier) getNameFromDatasetById(supplierList, asset.getSupplierId());
-            OfficeSite officeSite = (OfficeSite) getNameFromDatasetById(officeSiteList, asset.getOfficeSiteId());
-            AssetStatus assetStatus = (AssetStatus) getNameFromDatasetById(assetStatusList, asset.getAssetStatusId());
-
-            AssetGetResponse response = new AssetGetResponse(
-                    asset.getId(),
-                    asset.getAssetCode(),
-                    assetType.getName(),
-                    assetGroup.getName(),
-                    asset.getName(),
-                    asset.getUnit(),
-                    asset.getNote(),
-                    asset.getAssociatedAsset(),
-                    officeSite.getName(),
-                    asset.getPic(),
-                    manufacturer.getName(),
-                    supplier.getName(),
-                    asset.getPrice(),
-                    asset.getPurchaseDate(),
-                    asset.getWarrantyInMonth(),
-                    assetStatus.getName(),
-                    asset.getCiaC(),
-                    asset.getCiaI(),
-                    asset.getCiaA(),
-                    asset.getCiaSum(),
-                    asset.getCiaImportance(),
-                    asset.getCiaNote(),
-                    asset.getOwner(),
-                    asset.getAssignDateStart(),
-                    asset.getAssignDateEnd(),
-                    asset.isOverdue()
-            );
-            responseList.add(response);
-        }
-
-        return responseList;
-    }
 
     @Override
     public List<AssetGetResponse> findAll() {
@@ -199,18 +104,11 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public AssetGetResponse findById(String id) {
-        Optional<Asset> assetOptional = assetRepository.findById(id);
-        if (assetOptional.isPresent()) {
-            Asset asset = assetOptional.get();
-            AssetType assetType = assetTypeRepository.findById(asset.getAssetStatusId()).orElseThrow();
-            AssetGroup assetGroup = assetGroupRepository.findById(asset.getAssetGroupId()).orElseThrow();
-            OfficeSite officeSite = officeSiteRepository.findById(asset.getOfficeSiteId()).orElseThrow();
-            Manufacturer manufacturer  = manufacturerRepository.findById(asset.getManufacturerId()).orElseThrow();
-            Supplier supplier = supplierRepository.findById(asset.getSupplierId()).orElseThrow();
-            AssetStatus assetStatus = assetStatusRepository.findById(asset.getAssetStatusId()).orElseThrow();
 
-            return mapAssetToResponse(asset,assetType, assetGroup, officeSite, manufacturer, supplier, assetStatus );
+        if (assetRepository.existsById(id)) {
+            return assetRepository.findAssetGetResponseById(id);
+        } else {
+            throw new ItemNotFoundException("Submitted Asset Id not found");
         }
-        return null;
     }
 }

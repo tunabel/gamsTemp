@@ -14,4 +14,6 @@ public interface AssetRepositoryCustom {
 
     List<AssetGetResponse> findAllAssetGetResponse();
 
+    AssetGetResponse findAssetGetResponseById(String id);
+
 }
