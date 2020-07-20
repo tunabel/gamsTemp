@@ -2,7 +2,6 @@ package application.security.jwt;
 
 import application.security.jwtservice.UserDetailsImpl;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.impl.TextCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

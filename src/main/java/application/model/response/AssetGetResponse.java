@@ -1,19 +1,18 @@
 package application.model.response;
 
-import application.model.entity.AbstractObject;
-import application.model.entity.Asset;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+
 import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetGetResponse extends AbstractObject {
+public class AssetGetResponse {
+    @Id
     String id;
     String assetCode;
     String assetType;

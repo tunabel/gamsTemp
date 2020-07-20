@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.web.bind.support.SpringWebConstraintValidatorFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,99 +40,9 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
     @Override
     public List<AssetGetResponse> findAllAssetGetResponse() {
+        List<AggregationOperation> aggregationOperationList = createBaseAssetAggregationList();
 
-        ProjectionOperation projection1 = Aggregation.project(
-                "assetCode",
-                "assetTypeId",
-                "assetGroupId",
-                "name",
-                "unit",
-                "note",
-                "associatedAsset",
-                "officeSiteId",
-                "manufacturerId",
-                "supplierId",
-                "price",
-                "purchaseDate",
-                "warrantyInMonth",
-                "assetStatusId",
-                "ciaC",
-                "ciaI",
-                "ciaA",
-                "ciaSum",
-                "ciaImportance",
-                "ciaNote",
-                "owner",
-                "assignDateStart",
-                "assignDateEnd",
-                "overdue")
-                .andArrayOf(new Document("$toObjectId", "$pic")).as("picId");
-        LookupOperation lookupPic = Aggregation.lookup("users", "picId", "_id", "picUser");
-        LookupOperation lookupType = Aggregation.lookup("assettypes", "assetTypeId", "_id", "assetType");
-        LookupOperation lookupGroup = Aggregation.lookup("assetgroups", "assetGroupId", "_id", "assetGroup");
-        LookupOperation lookupStatus = Aggregation.lookup("assetstatus", "assetStatusId", "_id", "assetStatus");
-        LookupOperation lookupOffice = Aggregation.lookup("officesites", "officeSiteId", "_id", "officeSite");
-        LookupOperation lookupManufacturer = Aggregation.lookup("manufacturers", "manufacturerId", "_id", "manufacturer");
-        LookupOperation lookupSupplier = Aggregation.lookup("suppliers", "supplierId", "_id", "supplier");
-        ProjectionOperation projection2 = Aggregation.project(
-                "assetCode",
-                "name",
-                "unit",
-                "note",
-                "associatedAsset",
-                "price",
-                "purchaseDate",
-                "warrantyInMonth",
-                "ciaC",
-                "ciaI",
-                "ciaA",
-                "ciaSum",
-                "ciaImportance",
-                "ciaNote",
-                "owner",
-                "assignDateStart",
-                "assignDateEnd",
-                "overdue")
-                .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$picUser", 0))).as("picUser")
-                .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$assetType", 0))).as("assetTypeA")
-                .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$assetGroup", 0))).as("assetGroupA")
-                .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$assetStatus", 0))).as("assetStatusA")
-                .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$manufacturer", 0))).as("manufacturerA")
-                .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$supplier", 0))).as("supplierA")
-                .andArrayOf(new Document("$arrayElemAt", Arrays.asList("$officeSite", 0))).as("officeSiteA");
-        ProjectionOperation projection3 = Aggregation.project(
-                "assetCode",
-                "name",
-                "unit",
-                "note",
-                "associatedAsset",
-                "price",
-                "purchaseDate",
-                "warrantyInMonth",
-                "ciaC",
-                "ciaI",
-                "ciaA",
-                "ciaSum",
-                "ciaImportance",
-                "ciaNote",
-                "owner",
-                "assignDateStart",
-                "assignDateEnd",
-                "overdue")
-                .and("$picUser.firstName").as("pic")
-                .and("$assetTypeA.name").as("assetType")
-                .and("$assetGroupA.name").as("assetGroup")
-                .and("$assetStatusA.name").as("assetStatus")
-                .and("$manufacturerA.name").as("manufacturer")
-                .and("$supplierA.name").as("supplier")
-                .and("$officeSiteA.name").as("officeSite");
-
-        Aggregation aggregation = Aggregation.newAggregation(
-                projection1
-                , lookupPic, lookupType, lookupGroup, lookupStatus, lookupOffice, lookupManufacturer, lookupSupplier
-                , projection2
-                , projection3
-        );
+        Aggregation aggregation = Aggregation.newAggregation(aggregationOperationList);
         AggregationResults<AssetGetResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetResponse.class);
 
         List<AssetGetResponse> responses = new ArrayList<>();
@@ -143,10 +54,9 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
     }
 
-    @Override
-    public AssetGetResponse findAssetGetResponseById(String id) {
+    private List<AggregationOperation> createBaseAssetAggregationList() {
+        List<AggregationOperation> aggregationList = new ArrayList<>();
 
-        MatchOperation match1 = Aggregation.match(Criteria.where("_id").is(id));
         ProjectionOperation projection1 = Aggregation.project(
                 "assetCode",
                 "assetTypeId",
@@ -233,13 +143,25 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 .and("$supplierA.name").as("supplier")
                 .and("$officeSiteA.name").as("officeSite");
 
-        Aggregation aggregation = Aggregation.newAggregation(
-                match1
-                , projection1
-                , lookupPic, lookupType, lookupGroup, lookupStatus, lookupOffice, lookupManufacturer, lookupSupplier
-                , projection2
-                , projection3
+        aggregationList.addAll(
+                Arrays.asList(
+                        projection1
+                        , lookupPic, lookupType, lookupGroup, lookupStatus, lookupOffice, lookupManufacturer, lookupSupplier
+                        , projection2
+                        , projection3
+                )
         );
+
+        return aggregationList;
+    }
+
+    @Override
+    public AssetGetResponse findAssetGetResponseById(String id) {
+
+        MatchOperation match1 = Aggregation.match(Criteria.where("_id").is(id));
+        List<AggregationOperation> aggregationList = createBaseAssetAggregationList();
+        aggregationList.add(0,match1);
+        Aggregation aggregation = Aggregation.newAggregation(aggregationList);
         AggregationResults<AssetGetResponse> results = mongoTemplate.aggregate(aggregation, "assets", AssetGetResponse.class);
 
         return results.getUniqueMappedResult();
