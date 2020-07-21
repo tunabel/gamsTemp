@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetGetOneResponseDto extends AssetGetResponseDto {
+public class AssetGetOneResponseDto {
     @Id
     String id;
     String assetCode;
@@ -20,9 +20,9 @@ public class AssetGetOneResponseDto extends AssetGetResponseDto {
     String name;
     String unit;
     String note;
-    Set<String> associatedAssetCode;
+    Set<AssetShortResponseDto> associatedAssetCode;
     String officeSite;
-    String pic;
+    UserShortResponseDto pic;
     String manufacturer;
     String supplier;
     double price;
@@ -35,7 +35,7 @@ public class AssetGetOneResponseDto extends AssetGetResponseDto {
     int ciaSum;
     String ciaImportance;
     String ciaNote;
-    String owner;
+    UserShortResponseDto owner;
     LocalDate assignDateStart;
     LocalDate assignDateEnd;
     boolean overdue;

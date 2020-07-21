@@ -4,7 +4,7 @@ import application.model.entity.Asset;
 import application.model.requestdto.AssetCreateRequestDto;
 import application.model.requestdto.AssetUpdateRequestDto;
 import application.model.responsedto.AssetGetAllResponseDto;
-import application.model.responsedto.AssetGetResponseDto;
+import application.model.responsedto.AssetGetOneResponseDto;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -71,10 +71,25 @@ public class AssetController {
 
     @GetMapping(value = "/asset/{id}")
     public ResponseEntity<Map<String, Object>> getById(@PathVariable String id) {
-        AssetGetResponseDto asset = assetService.findById(id);
+        AssetGetOneResponseDto asset = assetService.findById(id);
 
         Map<String, Object> response = new HashMap<>();
         response.put("asset", asset);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/search/")
+    public ResponseEntity<Map<String, Object>> searchByFields(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String group,
+            @RequestParam(required = false) String owner
+            ) {
+        List<AssetGetAllResponseDto> assetList = assetService.findListByFields(code,name,group,owner);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("assets", assetList);
+        response.put("totalNumberOfRecords", assetList.size());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

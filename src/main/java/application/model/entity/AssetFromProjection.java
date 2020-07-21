@@ -1,6 +1,9 @@
 package application.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
@@ -13,7 +16,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Asset extends AbstractObject {
+public class AssetFromProjection extends AbstractObject {
     @NotNull
     String assetCode;
     @NotNull(message = "Asset Type is required")
@@ -24,7 +27,7 @@ public class Asset extends AbstractObject {
     String name;
     String unit;
     String note;
-    Set<Asset> associatedAsset;
+    Set<AssetFromProjection> associatedAsset;
     @NotNull(message = "Assigned site for asset is required")
     String officeSiteId;
     User pic;

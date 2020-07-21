@@ -20,8 +20,9 @@ public class AssetCreateRequestDto {
     String name;
     String unit;
     String note;
-    @NotNull(message = "Assigned site for asset is required")
+    @NotNull(message = "Assigned Office site for asset is required")
     String officeSiteId;
+    @NotBlank(message = "Personnel-In-Charge's data required")
     String pic;
     @NotNull(message = "Manufacturer's data is required")
     String manufacturerId;

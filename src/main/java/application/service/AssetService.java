@@ -4,7 +4,7 @@ import application.model.entity.Asset;
 import application.model.requestdto.AssetCreateRequestDto;
 import application.model.responsedto.AssetGetAllResponseDto;
 import application.model.responsedto.AssetGetOneResponseDto;
-import application.model.responsedto.AssociatedAssetGetResponseDto;
+import application.model.responsedto.AssetShortResponseDto;
 
 import java.util.List;
 
@@ -15,6 +15,8 @@ public interface AssetService {
 
     AssetGetOneResponseDto findById(String id);
 
-    List<AssociatedAssetGetResponseDto> findAssocByName(String name);
+    List<AssetGetAllResponseDto> findListByFields(String code, String name, String group, String owner);
+
+    List<AssetShortResponseDto> findAssocByName(String name);
 
 }

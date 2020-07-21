@@ -28,8 +28,6 @@ public class User extends AbstractObject {
     private LocalDate birthDay;
 
     @NotBlank
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     private int birthYear;
 
     @NotBlank
@@ -43,12 +41,4 @@ public class User extends AbstractObject {
 
     @DBRef
     private Set<Role> roles = new HashSet<>();
-
-    public int getBirthYear() {
-        return this.birthDay.getYear();
-    }
-
-    public void setBirthYear() {
-        this.birthYear = this.birthDay.getYear();
-    }
 }

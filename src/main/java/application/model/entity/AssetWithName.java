@@ -1,6 +1,9 @@
 package application.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
@@ -8,42 +11,41 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Document(collection = "assets")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Asset extends AbstractObject {
+public class AssetWithName extends AbstractObject {
     @NotNull
     String assetCode;
     @NotNull(message = "Asset Type is required")
-    String assetTypeId;
+    String assetType;
     @NotNull(message = "Asset Group is required")
-    String assetGroupId;
+    String assetGroup;
     @NotBlank(message = "Asset name is required")
     String name;
     String unit;
     String note;
-    Set<Asset> associatedAsset;
+    Set<String> associatedAsset;
     @NotNull(message = "Assigned site for asset is required")
-    String officeSiteId;
-    User pic;
+    String officeSite;
+    String pic;
     @NotNull(message = "Manufacturer's data is required")
-    String manufacturerId;
+    String manufacturer;
     @NotNull(message = "Supplier's data is required")
-    String supplierId;
+    String supplier;
     double price;
     LocalDate purchaseDate;
     int warrantyInMonth;
     @NotNull
-    String assetStatusId;
+    String assetStatus;
     int ciaC;
     int ciaI;
     int ciaA;
     int ciaSum;
     String ciaImportance;
     String ciaNote;
-    User owner;
+    String owner;
     LocalDate assignDateStart;
     LocalDate assignDateEnd;
     boolean overdue;

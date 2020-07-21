@@ -9,7 +9,7 @@ import org.springframework.data.annotation.Id;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssetGetAllResponseDto extends AssetGetResponseDto {
+public class AssetGetAllResponseDto {
     @Id
     String id;
     String assetCode;

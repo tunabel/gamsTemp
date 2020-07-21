@@ -44,7 +44,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public List<User> findActiveByQuery(String input) {
+    public List<User> findActiveByQueryingAllTextFields(String input) {
 
         Criteria criteria = new Criteria().andOperator(
                 new Criteria().orOperator(
@@ -61,7 +61,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public long countByField(String field, String value) {
+    public long countActiveByField(String field, String value) {
         Criteria criteria = new Criteria();
 
         criteria.andOperator(
@@ -85,7 +85,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public List<User> findByFieldWithFixedValue(String field, String value) {
+    public List<User> findActiveByFieldWithFixedValue(String field, String value) {
         Criteria criteria = new Criteria();
 
         criteria.andOperator(

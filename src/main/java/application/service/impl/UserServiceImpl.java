@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
             throw new BadConnectionException(CONNECTION_ERROR);
         }
 
-        List<User> userList = userRepository.findByFieldWithFixedValue("id", id);
+        List<User> userList = userRepository.findActiveByFieldWithFixedValue("id", id);
 
         if (userList.isEmpty()) {
             throw new ItemNotFoundException(ID_NOT_FOUND + id);
@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
         if (input == null || input.isEmpty()) {
             userList = userRepository.findAllActive();
         } else {
-            userList = userRepository.findActiveByQuery(input);
+            userList = userRepository.findActiveByQueryingAllTextFields(input);
         }
 
         if (userList.isEmpty()) {
@@ -157,6 +157,7 @@ public class UserServiceImpl implements UserService {
                 UserField.SURNAME.getName(),
                 UserField.EMAIL.getName(),
                 UserField.DEPARTMENT.getName(),
+                UserField.BIRTHDAY.getName(),
                 UserField.BIRTHYEAR.getName(),
                 UserField.BIRTHPLACE.getName(),
                 UserField.ROLE.getName(),
@@ -166,7 +167,7 @@ public class UserServiceImpl implements UserService {
             throw new UserFieldIncorrectException("Incorrect parameter of user field");
         }
 
-        return userRepository.countByField(field, value);
+        return userRepository.countActiveByField(field, value);
     }
 
     @Override
@@ -206,6 +207,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setBirthDay(LocalDate.of(request.getBirthYear(), Month.JANUARY, 1));
+        user.setBirthYear(request.getBirthYear());
         user.setBirthPlace(request.getBirthPlace());
         user.setDepartment(request.getDepartment());
 
@@ -228,13 +230,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserResponseDto> insertMany(List<UpsertRequestDto> requestList) {
+
+        List<UserResponseDto> responseList = new ArrayList<>();
+
+        for (UpsertRequestDto request : requestList) {
+            UserResponseDto response = upsert(request);
+            responseList.add(response);
+        }
+        return responseList;
+    }
+
+    @Override
     public String deactivate(String id) {
 
         if (!isConnectionOK()) {
             throw new BadConnectionException(CONNECTION_ERROR);
         }
 
-        List<User> userList = userRepository.findByFieldWithFixedValue("id", id);
+        List<User> userList = userRepository.findActiveByFieldWithFixedValue("id", id);
 
         if (userList.isEmpty()) {
             throw new ItemNotFoundException(ID_NOT_FOUND + id);

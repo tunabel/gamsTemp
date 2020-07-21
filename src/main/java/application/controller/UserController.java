@@ -70,6 +70,17 @@ public class UserController extends BaseController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping(value = "/import/")
+//    @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
+    public ResponseEntity<Map<String, Object>> insertMany(@RequestBody @Valid List<UpsertRequestDto> requestList) {
+        List<UserResponseDto> responseList = userService.insertMany(requestList);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "List user imported.");
+        response.put("count", responseList.size());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
     @PutMapping(value = "/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
     public ResponseEntity<Map<String, Object>> update(@RequestBody @Valid UpsertRequestDto request) {

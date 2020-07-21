@@ -24,6 +24,8 @@ public interface UserService {
 
     UserResponseDto upsert(UpsertRequestDto request);
 
+    List<UserResponseDto> insertMany(List<UpsertRequestDto> requestList);
+
     String deactivate(String id);
 
     boolean isConnectionOK();

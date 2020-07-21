@@ -1,21 +1,22 @@
 package application.repository;
 
 import application.model.entity.Asset;
-import application.model.responsedto.AssetGetResponseDto;
-import application.model.responsedto.AssociatedAssetGetResponseDto;
+import application.model.entity.AssetWithName;
 
 import java.util.List;
 
 public interface AssetRepositoryCustom {
 
-    int countByAssetGroup(String groupId);
+    List<Asset> getSimpleListOfIdByAssetGroupIdOrAll(String groupId);
 
-    List<Asset> getSimpleListOfId(String id);
+    List<AssetWithName> findAllWithName();
 
-    List<? extends AssetGetResponseDto> findAllAssetGetResponse();
+    Asset findByIdCustom(String id);
 
-    AssetGetResponseDto findAssetGetResponseById(String id);
+    List<AssetWithName> findListByFields(String code, String name, String group, String owner);
 
-    List<AssociatedAssetGetResponseDto> findAssocByName(String name);
+    List<Asset> findAssocByName(String name);
+
+
 
 }

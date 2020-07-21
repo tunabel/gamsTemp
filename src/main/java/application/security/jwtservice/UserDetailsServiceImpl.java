@@ -20,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) {
-        List<User> userList = userRepository.findByFieldWithFixedValue(UserField.EMAIL.getName(), email);
+        List<User> userList = userRepository.findActiveByFieldWithFixedValue(UserField.EMAIL.getName(), email);
 
         if (userList.isEmpty()) {
             throw new UsernameNotFoundException("Email not found "+email);
