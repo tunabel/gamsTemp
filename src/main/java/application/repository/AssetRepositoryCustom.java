@@ -15,8 +15,9 @@ public interface AssetRepositoryCustom {
 
     List<AssetWithName> findListByFields(String code, String name, String group, String owner);
 
-    List<Asset> findAssocByName(String name);
+    List<Asset> listAvailableAssocNameByField(String field, String query);
 
+    Asset findAvailableAssocByAssetCode(String assetCode);
 
 
 }

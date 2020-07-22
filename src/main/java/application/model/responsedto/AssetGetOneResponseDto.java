@@ -41,20 +41,4 @@ public class AssetGetOneResponseDto {
     boolean overdue;
 
 
-    public AssetGetOneResponseDto(String id, String assetCode, String assetType, String assetGroup, String name, String unit, String officeSite, UserShortResponseDto pic, String manufacturer, String supplier, double price, LocalDate purchaseDate, int warrantyInMonth, String assetStatus) {
-        this.id = id;
-        this.assetCode = assetCode;
-        this.assetType = assetType;
-        this.assetGroup = assetGroup;
-        this.name = name;
-        this.unit = unit;
-        this.officeSite = officeSite;
-        this.pic = pic;
-        this.manufacturer = manufacturer;
-        this.supplier = supplier;
-        this.price = price;
-        this.purchaseDate = purchaseDate;
-        this.warrantyInMonth = warrantyInMonth;
-        this.assetStatus = assetStatus;
-    }
 }

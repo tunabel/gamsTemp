@@ -5,7 +5,6 @@ import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.Set;
 
 @Data
@@ -25,7 +24,7 @@ public class AssetUpdateRequestDto  {
     @NotNull(message = "Supplier's data is required")
     String supplierId;
     double price;
-    LocalDate purchaseDate;
+    String purchaseDate;
     int warrantyInMonth;
     int ciaC;
     int ciaI;

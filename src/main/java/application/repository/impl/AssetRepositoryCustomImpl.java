@@ -157,28 +157,39 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperationList);
         AggregationResults<Asset> results = mongoTemplate.aggregate(aggregation, "assets", Asset.class);
 
-        Asset asset = results.getUniqueMappedResult();
-
-        return asset;
+        return results.getUniqueMappedResult();
     }
 
     @Override
-    public List<Asset> findAssocByName(String req) {
+    public List<Asset> listAvailableAssocNameByField(String field, String name) {
 
         Criteria criteria = new Criteria().andOperator(
                 Criteria.where("assetGroupId").is("28"),
-                Criteria.where("name").regex("^" + req, "i")
-                , Criteria.where("assetStatusId").is("0")
+                Criteria.where(field).regex("^" + name, "i"),
+                Criteria.where("assetStatusId").is("0")
         );
 
         MatchOperation matchOperation = Aggregation.match(criteria);
-        ProjectionOperation projectionOperation = Aggregation.project(
-                "name", "assetCode"
-        );
+        ProjectionOperation projectionOperation = Aggregation.project(field, "assetCode");
 
         AggregationResults<Asset> results = mongoTemplate.aggregate(Aggregation.newAggregation(matchOperation, projectionOperation), "assets", Asset.class);
 
         return results.getMappedResults();
+    }
+
+    @Override
+    public Asset findAvailableAssocByAssetCode(String assetCode) {
+        Criteria criteria = new Criteria().andOperator(
+                Criteria.where("assetGroupId").is("28"),
+                Criteria.where("assetCode").is(assetCode),
+                Criteria.where("assetStatusId").is("0")
+        );
+
+        MatchOperation matchOperation = Aggregation.match(criteria);
+
+        AggregationResults<Asset> results = mongoTemplate.aggregate(Aggregation.newAggregation(matchOperation), "assets", Asset.class);
+
+        return results.getUniqueMappedResult();
     }
 
     @Override
