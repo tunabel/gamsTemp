@@ -19,6 +19,8 @@ public interface UserRepositoryCustom {
 
     List<User> findActiveByFieldWithFixedValue(String field, String value);
 
+    List<User> findByBothName(String search);
+
     boolean isConnectionOK();
 
 

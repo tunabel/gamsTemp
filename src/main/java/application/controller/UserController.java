@@ -3,6 +3,7 @@ package application.controller;
 import application.model.requestdto.PaginationRequestDto;
 import application.model.requestdto.UpsertRequestDto;
 import application.model.responsedto.UserResponseDto;
+import application.model.responsedto.UserShortResponseDto;
 import application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -106,6 +107,16 @@ public class UserController extends BaseController {
 
         Map<String, Object> response = new HashMap<>();
         response.put("totalCount", count);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/short/")
+    public ResponseEntity<Map<String, Object>> getShortList(@RequestParam String search) {
+
+        List<UserShortResponseDto> responseDtoList = userService.findShortListByBothName(search);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("results", responseDtoList);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

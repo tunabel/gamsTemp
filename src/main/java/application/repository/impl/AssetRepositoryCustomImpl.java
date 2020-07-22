@@ -157,8 +157,6 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
 
         Asset asset = results.getUniqueMappedResult();
 
-        asset.getId();
-        asset.getName();
         return asset;
     }
 
@@ -185,13 +183,22 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
     public List<AssetWithName> findListByFields(String code, String name, String group, String owner) {
 
         List<AggregationOperation> aggregationOperationList = createAssetGetAllAggregationList();
-
-        Criteria criteria = new Criteria().andOperator(
-                Criteria.where("assetCode").regex((code == null) ? "^.{1,50}$" : code, "i"),
-                Criteria.where("name").regex((name == null) ? "^.{1,50}$" : name, "i"),
-                Criteria.where("assetGroup").regex((group == null) ? "^.{1,50}$" : group, "i"),
-                Criteria.where("ownerName").regex((owner == null) ? "^.{1,50}$" : owner, "i")
-        );
+        Criteria criteria;
+        //I WAS HAVING AN ERROR because owner field was originally null and after aggregation's projections it comes out as some datatype I can't catch to transform into empty string.
+        if (owner == null) {
+            criteria = new Criteria().andOperator(
+                    Criteria.where("assetCode").regex((code == null) ? "" : code, "i"),
+                    Criteria.where("name").regex((name == null) ? "" : name, "i"),
+                    Criteria.where("assetGroup").regex((group == null) ? "" : group, "i")
+            );
+        } else {
+            criteria = new Criteria().andOperator(
+                    Criteria.where("assetCode").regex((code == null) ? "" : code, "i"),
+                    Criteria.where("name").regex((name == null) ? "" : name, "i"),
+                    Criteria.where("assetGroup").regex((group == null) ? "" : group, "i"),
+                    Criteria.where("owner").regex(owner, "i")
+            );
+        }
 
         MatchOperation matchQuery = Aggregation.match(criteria);
 
@@ -221,23 +228,7 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 .and("$assetStatus.name").as("assetStatus")
                 .and("$officeSite.name").as("officeSite");
 
-        ProjectionOperation projectionNullOwner = Aggregation.project(
-                "assetCode",
-                "name",
-                "ciaC",
-                "ciaI",
-                "ciaA",
-                "ciaSum",
-                "overdue",
-                "assetType",
-                "assetGroup",
-                "assetStatus",
-                "officeSite"
-        )
-                .andArrayOf(new Document("$ifNull", Arrays.asList("$owner", ""))).as("ownerName");
-
         aggregationOperationList.add(projectionOperation);
-        aggregationOperationList.add(projectionNullOwner);
 
         return aggregationOperationList;
 

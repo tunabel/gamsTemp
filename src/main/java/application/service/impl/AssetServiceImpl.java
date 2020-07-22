@@ -6,7 +6,6 @@ import application.model.requestdto.AssetCreateRequestDto;
 import application.model.responsedto.AssetGetAllResponseDto;
 import application.model.responsedto.AssetGetOneResponseDto;
 import application.model.responsedto.AssetShortResponseDto;
-import application.model.responsedto.UserShortResponseDto;
 import application.repository.*;
 import application.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import static application.service.impl.UserServiceImpl.mapUserEntityToShortResponseDto;
 
 @Service
 public class AssetServiceImpl implements AssetService {
@@ -55,7 +56,7 @@ public class AssetServiceImpl implements AssetService {
 
         List<User> picList = userRepository.findActiveByFieldWithFixedValue("_id", request.getPic());
 
-        if (picList.size() <= 0) {
+        if (picList.isEmpty()) {
             throw new ItemNotFoundException("Personnel In Charge's Id not found");
         }
 
@@ -194,19 +195,12 @@ public class AssetServiceImpl implements AssetService {
 
         for (Asset asset : assetList) {
             int id = Integer.parseInt(asset.getId());
-            max = id > max ? id : max;
+            max = Math.max(id,max);
         }
         return max + 1;
     }
 
-    private UserShortResponseDto mapUserEntityToShortResponseDto(User user) {
-        return (user == null) ? null : new UserShortResponseDto(
-                user.getId(),
-                user.getFirstName(),
-                user.getSurName(),
-                user.getDepartment()
-        );
-    }
+
 
     private AssetGetAllResponseDto mapAssetWithNameToGetAllResponseDto(AssetWithName asset) {
         return new AssetGetAllResponseDto(

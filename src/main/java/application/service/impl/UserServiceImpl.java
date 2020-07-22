@@ -7,6 +7,7 @@ import application.model.entity.User;
 import application.model.requestdto.PaginationRequestDto;
 import application.model.requestdto.UpsertRequestDto;
 import application.model.responsedto.UserResponseDto;
+import application.model.responsedto.UserShortResponseDto;
 import application.repository.RoleRepository;
 import application.repository.UserRepository;
 import application.service.UserService;
@@ -265,4 +266,31 @@ public class UserServiceImpl implements UserService {
     public boolean isConnectionOK() {
         return userRepository.isConnectionOK();
     }
+
+    @Override
+    public List<UserShortResponseDto> findShortListByBothName(String search) {
+        List<User> userList = userRepository.findByBothName(search);
+        List<UserShortResponseDto> dtoList = new ArrayList<>();
+        for (User user : userList) {
+            UserShortResponseDto dto = mapUserEntityToShortResponseDto(user);
+            dtoList.add(dto);
+        }
+
+        return dtoList;
+    }
+
+    static public UserShortResponseDto mapUserEntityToShortResponseDto(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        return new UserShortResponseDto(
+                user.getId(),
+                user.getFirstName(),
+                user.getSurName(),
+                user.getDepartment()
+        );
+    }
+
+
 }

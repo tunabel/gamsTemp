@@ -4,6 +4,7 @@ import application.model.entity.User;
 import application.model.requestdto.PaginationRequestDto;
 import application.model.requestdto.UpsertRequestDto;
 import application.model.responsedto.UserResponseDto;
+import application.model.responsedto.UserShortResponseDto;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -29,4 +30,6 @@ public interface UserService {
     String deactivate(String id);
 
     boolean isConnectionOK();
+
+    List<UserShortResponseDto> findShortListByBothName(String search);
 }

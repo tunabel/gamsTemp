@@ -17,6 +17,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    private List<User> exportUserListFromCriteria(Criteria criteria) {
+        Query query = new Query(criteria);
+        return mongoTemplate.find(query, User.class);
+    }
+
     @Override
     public List<User> findAllActive() {
         Criteria criteria = Criteria.where(UserField.ACTIVE.getName()).is(true);
@@ -38,9 +43,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 ),
                 Criteria.where(UserField.ACTIVE.getName()).is(true)
         );
-        Query query = new Query(criteria);
-        return mongoTemplate.find(query, User.class);
-
+        return exportUserListFromCriteria(criteria);
     }
 
     @Override
@@ -56,8 +59,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 ),
                 Criteria.where(UserField.ACTIVE.getName()).is(true)
         );
-        Query query = new Query(criteria);
-        return mongoTemplate.find(query, User.class);
+        return exportUserListFromCriteria(criteria);
     }
 
     @Override
@@ -80,8 +82,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         criteria.andOperator(
                 Criteria.where(UserField.EMAIL.getName()).is(email)
         );
-        Query query = new Query().addCriteria(criteria);
-        return mongoTemplate.find(query, User.class);
+        return exportUserListFromCriteria(criteria);
     }
 
     @Override
@@ -92,8 +93,19 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 Criteria.where(field).is(value),
                 Criteria.where(UserField.ACTIVE.getName()).is(true)
         );
-        Query query = new Query().addCriteria(criteria);
-        return mongoTemplate.find(query, User.class);
+        return exportUserListFromCriteria(criteria);
+    }
+
+    @Override
+    public List<User> findByBothName(String search) {
+        Criteria criteria = new Criteria().andOperator(
+                new Criteria().orOperator(
+                        Criteria.where(UserField.FIRSTNAME.getName()).regex(search, "i"),
+                        Criteria.where(UserField.SURNAME.getName()).regex(search, "i")
+                ),
+                Criteria.where(UserField.ACTIVE.getName()).is(true)
+        );
+        return exportUserListFromCriteria(criteria);
     }
 
     @Override
