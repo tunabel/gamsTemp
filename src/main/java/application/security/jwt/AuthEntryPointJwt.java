@@ -25,7 +25,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
         if (authExMsg.equals("Bad credentials")) {
             errorMsg = "Incorrect email and password combination";
-            errorStatus = HttpServletResponse.SC_BAD_REQUEST;
+            errorStatus = HttpServletResponse.SC_ACCEPTED;
         } else {
             errorMsg = authExMsg;
             errorStatus = HttpServletResponse.SC_UNAUTHORIZED;

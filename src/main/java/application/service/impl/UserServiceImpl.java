@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
                 UserField.BIRTHDAY.getName(),
                 UserField.BIRTHYEAR.getName(),
                 UserField.BIRTHPLACE.getName(),
-                UserField.ROLE.getName(),
+                UserField.ROLES.getName(),
         };
 
         if (!Arrays.asList(fieldList).contains(field)) {

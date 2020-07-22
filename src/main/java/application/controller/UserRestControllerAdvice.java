@@ -75,6 +75,14 @@ public class UserRestControllerAdvice {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(LoginErrorException.class)
+    @ResponseStatus(value = HttpStatus.ACCEPTED)
+    public ResponseEntity<ApiErrorResponseDto> handleLoginErrorException(LoginErrorException ex) {
+        ApiErrorResponseDto error = new ApiErrorResponseDto("SUBMITTED_EMAIL_NOT_FOUND", ex.getMessage());
+        error.setStatus(HttpStatus.ACCEPTED.value());
+        return new ResponseEntity<>(error, HttpStatus.ACCEPTED);
+    }
+
     @ExceptionHandler(PageRequestInvalidException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public ResponseEntity<ApiErrorResponseDto> handlePageRequestInvalidException(PageRequestInvalidException ex) {

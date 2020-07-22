@@ -55,51 +55,61 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public AssetGetOneResponseDto insert(AssetCreateRequestDto request) {
 
-        List<User> picList = userRepository.findActiveByFieldWithFixedValue("_id", request.getPic());
+        User pic = userRepository.findActiveAdminById(request.getPic());
 
-        if (picList.isEmpty()) {
-            throw new ItemNotFoundException("Personnel In Charge's Id not found");
+        if (pic == null) {
+            throw new ItemNotFoundException("User not authorized to create asset");
         }
+
+        Optional<AssetType> assetTypeOptional = assetTypeRepository.findById(request.getAssetTypeId());
+        if (assetTypeOptional.isEmpty()) {
+            throw new ItemNotFoundException("Asset Type not found");
+        }
+
+        Optional<AssetGroup> assetGroupOptional = assetGroupRepository.findById(request.getAssetGroupId());
+        if (assetGroupOptional.isEmpty()) {
+            throw new ItemNotFoundException("Asset Group not found");
+        }
+
+        Optional<OfficeSite> officeSiteOptional = officeSiteRepository.findById(request.getOfficeSiteId());
+        if (officeSiteOptional.isEmpty()) {
+            throw new ItemNotFoundException("Office Site not found");
+        }
+
+        Optional<Manufacturer> manufacturerOptional = manufacturerRepository.findById(request.getManufacturerId());
+        if (manufacturerOptional.isEmpty()) {
+            throw new ItemNotFoundException("Manufacturer not found");
+        }
+
+        Optional<Supplier> supplierOptional = supplierRepository.findById(request.getSupplierId());
+        if (supplierOptional.isEmpty()) {
+            throw new ItemNotFoundException("Supplier not found");
+        }
+
+        String year = request.getPurchaseDate().substring(0, 4);
+        String group = assetGroupOptional.get().getAbbreviation();
+        String countGroup = String.format("%03d", createHighestIdByFieldOrAll(request.getAssetGroupId()));
+        String assetCode = year.concat(group).concat(countGroup);
 
         Asset asset = new Asset();
 
-        //SET ID AS AUTO INCREMENTING -- NEED TO FIND HIGHEST NUMBER, NOT TOTAL COUNT
-        asset.setId(String.valueOf(createHighestIdByField(null)));
-
+        asset.setId(String.valueOf(createHighestIdByFieldOrAll(null)));
         asset.setAssetTypeId(request.getAssetTypeId());
         asset.setAssetGroupId(request.getAssetGroupId());
         asset.setAssociatedAsset(new HashSet<>());
+        asset.setAssetCode(assetCode);
         asset.setName(request.getName());
         asset.setUnit(request.getUnit());
         asset.setNote(request.getNote());
         asset.setOfficeSiteId(request.getAssetTypeId());
-        asset.setPic(picList.get(0));
+        asset.setPic(pic);
         asset.setManufacturerId(request.getManufacturerId());
         asset.setSupplierId(request.getSupplierId());
         asset.setPrice(request.getPrice());
         asset.setPurchaseDate(LocalDate.parse(request.getPurchaseDate()));
         asset.setWarrantyInMonth(request.getWarrantyInMonth());
-
-        //to create asset code, we need YEAR && ASSETGROUPNAME && COUNT NO OF THAT GROUP
-        /* to get asset group name and count number of that group
-        we can create a query that returns something like
-        db.assetgroups.find({assetType: assetTypeId, _id: assetGroupId)
-         */
         asset.setOwner(null);
         asset.setAssetStatusId("0");
-        String year = request.getPurchaseDate().substring(0, 4);
-        Optional<AssetGroup> assetGroupOptional = assetGroupRepository.findById(request.getAssetGroupId());
-
-        if (assetGroupOptional.isPresent()) {
-            String group = assetGroupOptional.get().getAbbreviation();
-
-            String countGroup = String.format("%03d", createHighestIdByField(request.getAssetGroupId()));
-
-            asset.setAssetCode(year.concat(group).concat(countGroup));
-        } else {
-            throw new ItemNotFoundException("Asset Group Id not found");
-        }
-
         asset.setCiaC(0);
         asset.setCiaI(0);
         asset.setCiaA(0);
@@ -111,9 +121,9 @@ public class AssetServiceImpl implements AssetService {
         asset.setAssignDateEnd(null);
         asset.setOverdue(false);
 
-        assetRepository.insert(asset);
+        Asset result = assetRepository.insert(asset);
 
-        return mapAssetToAssetGetOneResponseDto(asset);
+        return mapAssetToAssetGetOneResponseDto(result);
     }
 
     @Override
@@ -162,7 +172,7 @@ public class AssetServiceImpl implements AssetService {
                     asset.isOverdue()
             );
         } else {
-            throw new ItemNotFoundException("Submitted Asset Id not found");
+            throw new ItemNotFoundException("Submitted Asset not found");
         }
     }
 
@@ -193,23 +203,20 @@ public class AssetServiceImpl implements AssetService {
     public Asset update(AssetUpdateRequestDto requestDto) {
 
 
-
-
         return null;
     }
 
 
-    private int createHighestIdByField(String fieldId) {
+    private int createHighestIdByFieldOrAll(String fieldId) {
         List<Asset> assetList = assetRepository.getSimpleListOfIdByAssetGroupIdOrAll(fieldId);
         int max = 0;
 
         for (Asset asset : assetList) {
             int id = Integer.parseInt(asset.getId());
-            max = Math.max(id,max);
+            max = Math.max(id, max);
         }
         return max + 1;
     }
-
 
 
     private AssetGetAllResponseDto mapAssetWithNameToGetAllResponseDto(AssetWithName asset) {
@@ -246,7 +253,7 @@ public class AssetServiceImpl implements AssetService {
         }
 
         return new AssetGetOneResponseDto(
-            asset.getId(),
+                asset.getId(),
                 asset.getAssetCode(),
                 asset.getAssetTypeId(),
                 asset.getAssetGroupId(),

@@ -11,6 +11,8 @@ public interface UserRepositoryCustom {
 
     List<User> findActiveByQueryingAllTextFields(String input);
 
+    User findActiveAdminById(String id);
+
     List<User> findActiveByQueryWithPagination(String input, Pageable pageable);
 
     long countActiveByField(String field, String value);

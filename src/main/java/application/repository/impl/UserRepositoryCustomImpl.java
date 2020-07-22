@@ -1,6 +1,8 @@
 package application.repository.impl;
 
+import application.model.common.ERole;
 import application.model.common.UserField;
+import application.model.entity.Role;
 import application.model.entity.User;
 import application.repository.UserRepositoryCustom;
 import com.mongodb.client.MongoDatabase;
@@ -11,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.List;
+import java.util.Set;
 
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
@@ -60,6 +63,26 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 Criteria.where(UserField.ACTIVE.getName()).is(true)
         );
         return exportUserListFromCriteria(criteria);
+    }
+
+    @Override
+    public User findActiveAdminById(String id) {
+        Criteria criteria = new Criteria();
+
+        criteria.andOperator(
+                Criteria.where("id").is(id),
+                Criteria.where(UserField.ACTIVE.getName()).is(true)
+        );
+
+        List<User> users = exportUserListFromCriteria(criteria);
+
+        Set<Role> roles = users.get(0).getRoles();
+        boolean flag = false;
+        for (Role role : roles) {
+            flag = (role.getName().equals(ERole.ROLE_SAD) || role.getName().equals(ERole.ROLE_ADM));
+        }
+
+        return flag ? users.get(0) : null;
     }
 
     @Override

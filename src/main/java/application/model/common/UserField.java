@@ -10,7 +10,7 @@ public enum UserField {
     BIRTHYEAR("birthYear"),
     BIRTHPLACE("birthPlace"),
     DEPARTMENT("department"),
-    ROLE("role"),
+    ROLES("roles"),
     ACTIVE("active");
 
     private final String name;
