@@ -279,7 +279,7 @@ public class UserServiceImpl implements UserService {
         return dtoList;
     }
 
-    static public UserShortResponseDto mapUserEntityToShortResponseDto(User user) {
+     public static UserShortResponseDto mapUserEntityToShortResponseDto(User user) {
         if (user == null) {
             return null;
         }

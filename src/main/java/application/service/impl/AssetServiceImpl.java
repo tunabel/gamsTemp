@@ -62,27 +62,27 @@ public class AssetServiceImpl implements AssetService {
         }
 
         Optional<AssetType> assetTypeOptional = assetTypeRepository.findById(request.getAssetTypeId());
-        if (assetTypeOptional.isEmpty()) {
+        if (!assetTypeOptional.isPresent()) {
             throw new ItemNotFoundException("Asset Type not found");
         }
 
         Optional<AssetGroup> assetGroupOptional = assetGroupRepository.findById(request.getAssetGroupId());
-        if (assetGroupOptional.isEmpty()) {
+        if (!assetGroupOptional.isPresent()) {
             throw new ItemNotFoundException("Asset Group not found");
         }
 
         Optional<OfficeSite> officeSiteOptional = officeSiteRepository.findById(request.getOfficeSiteId());
-        if (officeSiteOptional.isEmpty()) {
+        if (!officeSiteOptional.isPresent()) {
             throw new ItemNotFoundException("Office Site not found");
         }
 
         Optional<Manufacturer> manufacturerOptional = manufacturerRepository.findById(request.getManufacturerId());
-        if (manufacturerOptional.isEmpty()) {
+        if (!manufacturerOptional.isPresent()) {
             throw new ItemNotFoundException("Manufacturer not found");
         }
 
         Optional<Supplier> supplierOptional = supplierRepository.findById(request.getSupplierId());
-        if (supplierOptional.isEmpty()) {
+        if (!supplierOptional.isPresent()) {
             throw new ItemNotFoundException("Supplier not found");
         }
 
