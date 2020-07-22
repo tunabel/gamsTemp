@@ -32,4 +32,6 @@ public interface UserService {
     boolean isConnectionOK();
 
     List<UserShortResponseDto> findShortListByBothName(String search);
+
+
 }

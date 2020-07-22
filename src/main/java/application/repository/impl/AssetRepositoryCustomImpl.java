@@ -148,7 +148,9 @@ public class AssetRepositoryCustomImpl implements AssetRepositoryCustom {
                 .and("$assetType.value").as("assetTypeId")
                 .and("$assetGroup.value").as("assetGroupId")
                 .and("$assetStatus.value").as("assetStatusId")
-                .and("$officeSite.value").as("officeSiteId");
+                .and("$officeSite.value").as("officeSiteId")
+                .and("$supplier.value").as("supplierId")
+                .and("$manufacturer.value").as("manufacturerId");
 
         aggregationOperationList.add(0, matchId);
         aggregationOperationList.add(projectionGetId);

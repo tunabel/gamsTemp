@@ -3,6 +3,7 @@ package application.service.impl;
 import application.controller.exception.ItemNotFoundException;
 import application.model.entity.*;
 import application.model.requestdto.AssetCreateRequestDto;
+import application.model.requestdto.AssetUpdateRequestDto;
 import application.model.responsedto.AssetGetAllResponseDto;
 import application.model.responsedto.AssetGetOneResponseDto;
 import application.model.responsedto.AssetShortResponseDto;
@@ -52,7 +53,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset insert(AssetCreateRequestDto request) {
+    public AssetGetOneResponseDto insert(AssetCreateRequestDto request) {
 
         List<User> picList = userRepository.findActiveByFieldWithFixedValue("_id", request.getPic());
 
@@ -112,7 +113,7 @@ public class AssetServiceImpl implements AssetService {
 
         assetRepository.insert(asset);
 
-        return asset;
+        return mapAssetToAssetGetOneResponseDto(asset);
     }
 
     @Override
@@ -188,6 +189,15 @@ public class AssetServiceImpl implements AssetService {
         return dtoList;
     }
 
+    @Override
+    public Asset update(AssetUpdateRequestDto requestDto) {
+
+
+
+
+        return null;
+    }
+
 
     private int createHighestIdByField(String fieldId) {
         List<Asset> assetList = assetRepository.getSimpleListOfIdByAssetGroupIdOrAll(fieldId);
@@ -228,6 +238,29 @@ public class AssetServiceImpl implements AssetService {
             dtoList.add(mapAssetWithNameToGetAllResponseDto(asset));
         }
         return dtoList;
+    }
+
+    private AssetGetOneResponseDto mapAssetToAssetGetOneResponseDto(Asset asset) {
+        if (asset == null) {
+            return null;
+        }
+
+        return new AssetGetOneResponseDto(
+            asset.getId(),
+                asset.getAssetCode(),
+                asset.getAssetTypeId(),
+                asset.getAssetGroupId(),
+                asset.getName(),
+                asset.getUnit(),
+                asset.getOfficeSiteId(),
+                mapUserEntityToShortResponseDto(asset.getPic()),
+                asset.getManufacturerId(),
+                asset.getSupplierId(),
+                asset.getPrice(),
+                asset.getPurchaseDate(),
+                asset.getWarrantyInMonth(),
+                asset.getAssetStatusId()
+        );
     }
 
 }

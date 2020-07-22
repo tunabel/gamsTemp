@@ -43,7 +43,7 @@ public class AssetController {
     @PostMapping(value = "/")
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
     public ResponseEntity<Map<String, Object>> insertOne(@Valid @RequestBody AssetCreateRequestDto dto) {
-        Asset asset = assetService.insert(dto);
+        AssetGetOneResponseDto asset = assetService.insert(dto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "New asset created.");
@@ -56,10 +56,10 @@ public class AssetController {
     @PreAuthorize("hasRole('ADM') or hasRole('SAD')")
     public ResponseEntity<Map<String, Object>> insertList(@Valid @RequestBody List<AssetCreateRequestDto> request) {
 
-        List<Asset> assetList = new ArrayList<>();
+        List<AssetGetOneResponseDto> assetList = new ArrayList<>();
 
         for (AssetCreateRequestDto asset : request) {
-            Asset newAsset = assetService.insert(asset);
+            AssetGetOneResponseDto newAsset = assetService.insert(asset);
             assetList.add(newAsset);
         }
 
@@ -104,6 +104,9 @@ public class AssetController {
 
     @PutMapping(value = "/asset/{id}")
     public ResponseEntity<Map<String, Object>> update(@RequestParam String id, @Valid @RequestBody AssetUpdateRequestDto request) {
+
+        Asset asset = assetService.update(request);
+
         return null;
     }
 
